@@ -1,0 +1,113 @@
+// Domain types (not protocol buffer types)
+export interface KeyedEvent {
+  key: Uint8Array;
+  value: Uint8Array;
+  timestamp: Date;
+}
+
+export interface Subject {
+  /**
+   * Sets a value in the state store
+   * @param namespace the namespace to use
+   * @param key the key to set
+   * @param value the value to set
+   */
+  putState(namespace: string, key: Uint8Array, value: Uint8Array): void;
+
+  /**
+   * Deletes a value from the state store
+   * @param namespace the namespace to use
+   * @param key the key to delete
+   */
+  deleteState(namespace: string, key: Uint8Array): void;
+
+  /**
+   * Sends a value to a sink
+   * @param sinkId the sink ID to send to
+   * @param value the value to send
+   */
+  emit(sinkId: string, value: Uint8Array): void;
+
+  /**
+   * Sets a timer that will fire at the given timestamp
+   * @param timestamp the time when the timer should fire
+   */
+  setTimer(timestamp: Date): void;
+}
+
+export interface OperatorHandler {
+  /**
+   * Called when a new event arrives. The subject is a set of APIs scoped to
+   * the specific partition key being used. Because of this scoping, think of this
+   * as the subject (e.g. a User, a Product) in your domain.
+   * 
+   * @param subject the subject to interact with
+   * @param event the keyed event that was received
+   */
+  onEvent(subject: Subject, event: KeyedEvent): void | Promise<void>;
+
+  /**
+   * A previously set timer expires. This is an asynchronous action where the
+   * timer fires at the specified time AT THE EARLIEST. That means that events
+   * after the timer's timestamp have likely already arrived.
+   * 
+   * @param subject the subject to interact with
+   * @param timer the timestamp when the timer was set to expire
+   */
+  onTimerExpired(subject: Subject, timer: Date): void | Promise<void>;
+}
+
+export interface JobDefinition {
+  /**
+   * The number of workers to use
+   */
+  workerCount?: number;
+
+  /**
+   * The number of key groups to use
+   */
+  keyGroupCount?: number;
+
+  /**
+   * The working storage location
+   */
+  workingStorageLocation?: string;
+
+  /**
+   * The savepoint storage location
+   */
+  savepointStorageLocation?: string;
+
+  /**
+   * The sources to use
+   */
+  sources: SourceDefinition[];
+
+  /**
+   * The sinks to use
+   */
+  sinks: SinkDefinition[];
+}
+
+export type SourceType = 'stdio' | 'kinesis' | 'http_api' | 'embedded';
+export type SinkType = 'stdio' | 'http_api' | 'memory';
+
+export interface SourceDefinition {
+  id: string;
+  type: SourceType;
+  config?: any;
+  keyEvent(event: Uint8Array): KeyedEvent[] | Promise<KeyedEvent[]>;
+}
+
+export interface SinkDefinition {
+  id: string;
+  type: SinkType;
+  config?: any;
+}
+
+export interface JobOptions {
+  /**
+   * The port to use for the server
+   */
+  port?: number;
+}
