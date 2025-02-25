@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+VERSION_FILE="./src/proto/VERSION"
+
+# Check if VERSION file exists
+if [ ! -f "$VERSION_FILE" ]; then
+  echo "Error: VERSION file not found at $VERSION_FILE"
+  echo "You need to run ./scripts/gen first to generate the protocol files"
+  exit 1
+fi
+
+# Extract the commit SHA from VERSION file
+RECORDED_SHA=$(grep "^COMMIT=" "$VERSION_FILE" | cut -d'=' -f2)
+
+if [ -z "$RECORDED_SHA" ]; then
+  echo "Error: Could not extract protocol commit SHA from VERSION file"
+  exit 1
+fi
+
+echo "Recorded protocol version: $RECORDED_SHA"
+
+REPO_URL=${PROTOCOL_REPO_URL:-"https://github.com/reduction-dev/reduction-protocol.git"}
+
+echo "Fetching latest protocol version from $REPO_URL"
+LATEST_SHA=$(git ls-remote "$REPO_URL" HEAD | cut -f1)
+
+echo "Latest protocol version: $LATEST_SHA"
+
+# Compare SHAs
+if [ "$RECORDED_SHA" != "$LATEST_SHA" ]; then
+  echo "Error: Protocol version mismatch!"
+  echo "  Generated files are based on: $RECORDED_SHA"
+  echo "  Latest protocol version is:   $LATEST_SHA"
+  echo ""
+  echo "Please run ./scripts/gen to update the generated files"
+  
+  exit 1
+else
+  echo "✅ Protocol version is up to date!"
+fi

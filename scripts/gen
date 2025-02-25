@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+EXTERNAL_PROTOCOL_DIR="../reduction-protocol"
+OUTPUT_DIR="./src/proto"
+
+# Check if the protocol directory exists
+if [ ! -d "$EXTERNAL_PROTOCOL_DIR" ]; then
+  echo "Error: Protocol directory not found at $EXTERNAL_PROTOCOL_DIR"
+  echo "Please ensure the reduction-protocol repo exists at ../reduction-protocol"
+  exit 1
+fi
+
+# Create output directory if it doesn't exist
+mkdir -p "$OUTPUT_DIR"
+
+# Add a version marker file with git commit hash from protocol repo
+pushd "$EXTERNAL_PROTOCOL_DIR" > /dev/null
+PROTOCOL_VERSION=$(git rev-parse HEAD)
+PROTOCOL_DATE=$(git log -1 --format=%cd --date=short)
+popd > /dev/null
+
+# Create version file with key=value pairs
+cat > "$OUTPUT_DIR/VERSION" << EOF
+GENERATED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+COMMIT=$PROTOCOL_VERSION
+DATE=$PROTOCOL_DATE
+EOF
+
+# Generate code from proto files
+echo "Generating code from protocol files..."
+protoc --plugin=protoc-gen-es="./node_modules/.bin/protoc-gen-es" \
+  --plugin=protoc-gen-connect-es="./node_modules/.bin/protoc-gen-connect-es" \
+  --es_out="$OUTPUT_DIR" \
+  --es_opt=target=ts \
+  --connect-es_out="$OUTPUT_DIR" \
+  --connect-es_opt=target=ts \
+  --proto_path="$EXTERNAL_PROTOCOL_DIR" \
+  "$EXTERNAL_PROTOCOL_DIR"/**/*.proto
+
+echo "Generated code from protocol version: $PROTOCOL_VERSION ($PROTOCOL_DATE)"
