@@ -3,9 +3,12 @@ import { timestampFromDate } from "@bufbuild/protobuf/wkt";
 import { type Client, createClient } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-node";
 import { expect, test } from 'bun:test';
-import { ReductionJob } from "../core/job";
+import { Job } from "../topology/job";
 import * as pb from "../proto/handlerpb/handler_pb";
 import type { KeyedEvent, OperatorHandler, Subject } from "../types";
+import { Server } from "../server/server";
+import * as stdio from "@rxn/connectors/stdio";
+import * as topology from "@rxn/topology";
 
 test('Process Keyed Event', async () => {
   const now = new Date();
@@ -33,7 +36,8 @@ test('Process Keyed Event', async () => {
           })
         }
       })
-    ]
+    ],
+    watermark: timestampFromDate(now),
   });
   
   // Call the server
@@ -77,7 +81,8 @@ test('Process Timer Expired', async () => {
           })
         }
       })
-    ]
+    ],
+    watermark: timestampFromDate(now),
   });
   
   // Call the server
@@ -139,7 +144,8 @@ test('Process State Mutations', async () => {
           })
         ]
       })
-    ]
+    ],
+    watermark: timestampFromDate(now)
   });
   
   // Call the server
@@ -191,12 +197,25 @@ class TestHandler implements OperatorHandler{
 
 // Setup function to create a test server and client
 async function setupTestServer(handler: TestHandler): Promise<Client<typeof pb.Handler>> {
-  const job = new ReductionJob(handler, {
-    sources: [{ id: 'test-source', type: 'embedded', keyEvent: (ev: Uint8Array) => [] }],
-    sinks: [{ id: 'test-sink', type: 'stdio' }]
-  }, { port: 0 });
+  const job = new Job({
+    workerCount: 1,
+    workingStorageLocation: '/tmp/reduction',
+  });
+  const sink = new stdio.Sink(job, 'test-sink');
+  const source = new stdio.Source(job, 'test-source', {
+    keyEvent: (event) => {
+      throw new Error('Key event not expected in this test');
+    }
+  });
+  const operator = new topology.Operator(job, 'test-operator', {
+    parallelism: 1,
+    handler: () => handler,
+  });
+  source.connect(operator);
+  operator.connect(sink);
 
-  const port = await job.serve();
+  const synthesizedHandler = job.context.synthesize().handler;
+  const port = await new Server(synthesizedHandler, 0).start();
 
   const client = createClient(pb.Handler, createConnectTransport({
     baseUrl: `http://localhost:${port}`,

@@ -3,6 +3,14 @@ import * as pb from '../proto/handlerpb/handler_pb';
 import { create } from '@bufbuild/protobuf';
 import { type Timestamp, timestampFromDate } from "@bufbuild/protobuf/wkt";
 
+// A map of state IDs to state entries for one key.
+type KeyState = Map<string, StateEntry[]>;
+
+export interface StateEntry {
+  key: string;
+  value: any;
+}
+
 /**
  * Implementation of the Subject interface for handling state and sinks
  */
@@ -11,9 +19,13 @@ export class SubjectImpl implements Subject {
   private sinkRequests: pb.SinkRequest[] = [];
   private timers: Timestamp[] = [];
   private readonly key: Uint8Array;
+  private timestamp: Date;
+  private watermark: Date;
 
-  constructor(key: Uint8Array) {
+  constructor(key: Uint8Array, timestamp: Date, watermark: Date, keyState: KeyState) {
     this.key = key;
+    this.timestamp = timestamp;
+    this.watermark = watermark;
   }
 
   putState(namespace: string, key: Uint8Array, value: Uint8Array): void {
@@ -56,6 +68,10 @@ export class SubjectImpl implements Subject {
 
   setTimer(timestamp: Date): void {
     this.timers.push(timestampFromDate(timestamp));
+  }
+
+  setTimestamp(timestamp: Date): void {
+    this.timestamp = timestamp;
   }
 
   getStateMutationNamespaces(): pb.StateMutationNamespace[] {
@@ -105,5 +121,17 @@ export class SubjectImpl implements Subject {
 
   getKey(): Uint8Array {
     return this.key;
+  }
+
+  getKeyResults(): pb.KeyResult[] {
+    const result = create(pb.KeyResultSchema, {
+      key: this.key,
+      newTimers: this.timers
+    });
+
+    // Add state mutation namespaces to the result
+    result.stateMutationNamespaces = this.getStateMutationNamespaces();
+
+    return [result];
   }
 }

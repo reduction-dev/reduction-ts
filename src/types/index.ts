@@ -1,3 +1,5 @@
+import type { Operator } from "../topology/operator";
+
 // Domain types (not protocol buffer types)
 export interface KeyedEvent {
   key: Uint8Array;
@@ -87,6 +89,11 @@ export interface JobDefinition {
    * The sinks to use
    */
   sinks: SinkDefinition[];
+
+  /**
+   * The operators to use
+   */
+  operators: Operator[];
 }
 
 export type SourceType = 'stdio' | 'kinesis' | 'http_api' | 'embedded';
@@ -97,6 +104,7 @@ export interface SourceDefinition {
   type: SourceType;
   config?: any;
   keyEvent(event: Uint8Array): KeyedEvent[] | Promise<KeyedEvent[]>;
+  operator: OperatorDefinition;
 }
 
 export interface SinkDefinition {
@@ -105,9 +113,17 @@ export interface SinkDefinition {
   config?: any;
 }
 
+export interface OperatorDefinition {
+  id: string;
+  parallelism: number;
+  handler: OperatorHandler;
+}
+
 export interface JobOptions {
   /**
    * The port to use for the server
    */
   port?: number;
 }
+
+export type KeyEventFunc = (event: Uint8Array) => KeyedEvent[] | Promise<KeyedEvent[]>;
