@@ -1,6 +1,9 @@
 import { expect, test } from 'bun:test';
 import * as topology from '../topology';
 import * as stdio from '../connectors/stdio';
+import { fromJson } from '@bufbuild/protobuf';
+import { create } from '@bufbuild/protobuf';
+import * as config_pb from '../proto/jobconfigpb/jobconfig_pb';
 
 test("synthesize job config", () => {
   const job = new topology.Job({ 
@@ -32,6 +35,30 @@ test("synthesize job config", () => {
   source.connect(operator);
   operator.connect(sink);
 
+  const synth = job.context.synthesize();
+  const jobConfig = fromJson(config_pb.JobConfigSchema, synth.config);
 
-  const synth = job.context.synthesize(); 
+  // Create the expected configuration
+  expect(jobConfig).toEqual(create(config_pb.JobConfigSchema, {
+    job: {
+      workerCount: 1,
+      keyGroupCount: 2,
+      workingStorageLocation: "/tmp/work",
+      savepointStorageLocation: "/tmp/save"
+    },
+    sources: [{
+      id: "source-id",
+      config: {
+        case: "stdio",
+        value: {}
+      }
+    }],
+    sinks: [{
+      id: "sink-id",
+      config: {
+        case: "stdio",
+        value: {}
+      }
+    }]
+  }));
 });

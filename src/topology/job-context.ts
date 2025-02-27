@@ -73,7 +73,8 @@ export class JobContext {
       throw new Error('Job must have exactly one sink');
     }
 
-    const source = this.sources[0]()
+    const source = this.sources[0]();
+    const sink = this.sinks[0]();
     const operator = this.operators[0]();
 
     const jobConfig = create(config_pb.JobConfigSchema, {
@@ -84,6 +85,7 @@ export class JobContext {
         workingStorageLocation: this.workingStorageLocation
       }),
       sources: [source.config],
+      sinks: [sink.config]
     });
 
     return {
@@ -103,96 +105,4 @@ export class JobContext {
   public registerOperator(operator: LazyOperatorSynthesis): void {
     this.operators.push(operator);
   }
-
-  // private createSource(sourceDefinition: SourceDefinition): config_pb.Source {
-  //   const source = create(config_pb.SourceSchema, {
-  //     id: sourceDefinition.id
-  //   });
-
-  //   switch (sourceDefinition.type) {
-  //     case 'stdio':
-  //       source.config = {
-  //         case: 'stdio',
-  //         value: create(config_pb.StdioSourceSchema, {
-  //           framing: sourceDefinition.config?.framing ? 
-  //             create(config_pb.FramingSchema, sourceDefinition.config.framing) : 
-  //             create(config_pb.FramingSchema, {
-  //               scheme: {
-  //                 case: 'lengthEncoded',
-  //                 value: {}
-  //               }
-  //             })
-  //         })
-  //       };
-  //       break;
-  //     case 'kinesis':
-  //       source.config = {
-  //         case: 'kinesis',
-  //         value: create(config_pb.KinesisSourceSchema, {
-  //           streamArn: sourceDefinition.config?.streamArn,
-  //           endpoint: sourceDefinition.config?.endpoint
-  //         })
-  //       };
-  //       break;
-  //     case 'http_api':
-  //       source.config = {
-  //         case: 'httpApi',
-  //         value: create(config_pb.HTTPAPISourceSchema, {
-  //           addr: sourceDefinition.config?.addr,
-  //           topics: sourceDefinition.config?.topics || []
-  //         })
-  //       };
-  //       break;
-  //     case 'embedded':
-  //       source.config = {
-  //         case: 'embedded',
-  //         value: create(config_pb.EmbeddedSourceSchema, {
-  //           splitCount: sourceDefinition.config?.splitCount || 1,
-  //           batchSize: sourceDefinition.config?.batchSize || 10,
-  //           generator: sourceDefinition.config?.generator || 1
-  //         })
-  //       };
-  //       break;
-  //     default:
-  //       throw new Error(`Unknown source type: ${sourceDefinition.type}`);
-  //   }
-
-  //   return source;
-  // }
-
-  /**
-   * Create a sink configuration
-   */
-  // private createSink(sinkDefinition: SinkDefinition): config_pb.Sink {
-  //   const sink = create(config_pb.SinkSchema, {
-  //     id: sinkDefinition.id
-  //   });
-
-  //   switch (sinkDefinition.type) {
-  //     case 'stdio':
-  //       sink.config = {
-  //         case: 'stdio',
-  //         value: create(config_pb.StdioSinkSchema, {})
-  //       };
-  //       break;
-  //     case 'http_api':
-  //       sink.config = {
-  //         case: 'httpApi',
-  //         value: create(config_pb.HTTPAPISinkSchema, {
-  //           addr: sinkDefinition.config?.addr
-  //         })
-  //       };
-  //       break;
-  //     case 'memory':
-  //       sink.config = {
-  //         case: 'memory',
-  //         value: create(config_pb.MemorySinkSchema, {})
-  //       };
-  //       break;
-  //     default:
-  //       throw new Error(`Unknown sink type: ${sinkDefinition.type}`);
-  //   }
-
-  //   return sink;
-  // }
 }
