@@ -5,11 +5,16 @@ import { type Timestamp, timestampFromDate } from "@bufbuild/protobuf/wkt";
 // A map of state IDs to state entries for one key.
 type KeyState = Map<string, pb.StateEntry[]>;
 
+// Interface for any state that can provide its mutations
+interface MutatingState {
+  mutations(): pb.StateMutation[];
+}
+
 /**
  * Implementation of the Subject interface for handling state and sinks
  */
 export class SubjectContext {
-  private stateMutations: Map<string, Map<string, { put?: pb.PutMutation; delete?: pb.DeleteMutation }>> = new Map();
+  private usedStates = new Map<string, MutatingState>();
   private sinkRequests: pb.SinkRequest[] = [];
   private timers: Timestamp[] = [];
   private readonly key: Uint8Array;
@@ -23,6 +28,9 @@ export class SubjectContext {
     this.timestamp = timestamp;
     this.watermark = watermark;
     this.keyState = keyState;
+  }
+  registerStateUse(id: string, state: MutatingState): void {
+    this.usedStates.set(id, state);
   }
 
   /**
@@ -43,21 +51,6 @@ export class SubjectContext {
     return this.keyState.get(namespace) || [];
   }
 
-  deleteState(namespace: string, key: Uint8Array): void {
-    if (!this.stateMutations.has(namespace)) {
-      this.stateMutations.set(namespace, new Map());
-    }
-    
-    const keyStr = Buffer.from(key).toString('base64');
-    const namespaceMap = this.stateMutations.get(namespace)!;
-    
-    const deleteMutation = create(pb.DeleteMutationSchema, {
-      key: key
-    });
-    
-    namespaceMap.set(keyStr, { delete: deleteMutation });
-  }
-
   emit(sinkId: string, value: Uint8Array): void {
     this.sinkRequests.push(create(pb.SinkRequestSchema, {
       id: sinkId,
@@ -76,35 +69,15 @@ export class SubjectContext {
   getStateMutationNamespaces(): pb.StateMutationNamespace[] {
     const result: pb.StateMutationNamespace[] = [];
     
-    for (const [namespace, mutations] of this.stateMutations.entries()) {
-      // First create each mutation
-      const stateMutations: pb.StateMutation[] = [];
-      
-      for (const mutation of mutations.values()) {
-        if (mutation.put) {
-          stateMutations.push(create(pb.StateMutationSchema, {
-            mutation: {
-              case: "put",
-              value: mutation.put
-            }
-          }));
-        } else if (mutation.delete) {
-          stateMutations.push(create(pb.StateMutationSchema, {
-            mutation: {
-              case: "delete",
-              value: mutation.delete
-            }
-          }));
-        }
+    // Collect mutations from all used states
+    for (const [stateID, state] of this.usedStates) {
+      const mutations = state.mutations();
+      if (mutations.length > 0) {
+        result.push(create(pb.StateMutationNamespaceSchema, {
+          namespace: stateID,
+          mutations: mutations
+        }));
       }
-      
-      // Then add them to the namespace
-      const mutationNamespace = create(pb.StateMutationNamespaceSchema, {
-        namespace: namespace,
-        mutations: stateMutations
-      });
-      
-      result.push(mutationNamespace);
     }
     
     return result;

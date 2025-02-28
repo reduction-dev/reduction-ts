@@ -18,8 +18,13 @@ export class MapSpec<K, V> {
       return cachedState as MapState<K, V>;
     }
 
-    const state = new MapState<K, V>(this.id, this.codec, subject.context.getStateEntries(this.id));
+    const state = new MapState<K, V>(
+      this.id,
+      this.codec,
+      subject.context.getStateEntries(this.id)
+    );
     subject.context.putState(this.id, state);
+    subject.context.registerStateUse(this.id, state);
     return state;
   }
 }
