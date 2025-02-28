@@ -2,7 +2,6 @@ import { expect, test } from "bun:test";
 import { MapState } from "./map-state";
 import type { MapCodec } from "./map-codec";
 import * as pb from "@rxn/proto/handlerpb/handler_pb";
-import type { StateEntry } from "@rxn/handler/subject-context";
 import { create } from "@bufbuild/protobuf";
 
 test("MapState name test", () => {
@@ -29,7 +28,10 @@ test("MapState put mutation", () => {
 
 test("MapState delete mutation", () => {
   const state = new MapState("id", codec, [
-    { key: textEncoder.encode("k1"), value: textEncoder.encode("v1") }
+    create(pb.StateEntrySchema, {
+      key: textEncoder.encode("k1"),
+      value: textEncoder.encode("v1")
+    })
   ]);
   state.delete("k1");
 
@@ -46,10 +48,19 @@ test("MapState delete mutation", () => {
 });
 
 test("MapState entries test", () => {
-  const initialEntries: StateEntry[] = [
-    { key: textEncoder.encode("unchanged"), value: textEncoder.encode("unchanged") },
-    { key: textEncoder.encode("modified"), value: textEncoder.encode("to-be-modified") },
-    { key: textEncoder.encode("deleted"), value: textEncoder.encode("to-be-deleted") }
+  const initialEntries = [
+    create(pb.StateEntrySchema, {
+      key: textEncoder.encode("unchanged"),
+      value: textEncoder.encode("unchanged")
+    }),
+    create(pb.StateEntrySchema, {
+      key: textEncoder.encode("modified"),
+      value: textEncoder.encode("to-be-modified")
+    }),
+    create(pb.StateEntrySchema, {
+      key: textEncoder.encode("deleted"),
+      value: textEncoder.encode("to-be-deleted")
+    })
   ];
 
   const state = new MapState("id", codec, initialEntries);
@@ -77,8 +88,14 @@ test("MapState size operations", () => {
 
   // Test after loading items
   const loadedState = new MapState("test", codec, [
-    { key: textEncoder.encode("k1"), value: textEncoder.encode("v1") },
-    { key: textEncoder.encode("k2"), value: textEncoder.encode("v2") }
+    create(pb.StateEntrySchema, {
+      key: textEncoder.encode("k1"),
+      value: textEncoder.encode("v1")
+    }),
+    create(pb.StateEntrySchema, {
+      key: textEncoder.encode("k2"),
+      value: textEncoder.encode("v2")
+    })
   ]);
   expect(loadedState.size).toBe(2);
 
@@ -94,7 +111,10 @@ test("MapState size operations", () => {
 
   // Test delete then add same key
   const readdState = new MapState("test", codec, [
-    { key: textEncoder.encode("k1"), value: textEncoder.encode("v1") }
+    create(pb.StateEntrySchema, {
+      key: textEncoder.encode("k1"),
+      value: textEncoder.encode("v1")
+    })
   ]);
   readdState.delete("k1");
   readdState.put("k1", "v2");

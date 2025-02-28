@@ -1,5 +1,4 @@
 import { create } from "@bufbuild/protobuf";
-import type { StateEntry } from "@rxn/handler/subject-context";
 import * as pb from "@rxn/proto/handlerpb/handler_pb";
 import { expect, test } from "bun:test";
 import { BoolCodec as BooleanCodec, FloatCodec, Int32Codec, StringCodec } from "./scalar-codecs";
@@ -34,8 +33,11 @@ test("ValueState name test", () => {
 test("ValueState drop test", () => {
   // Initialize value state with a value
   const initialValue = 42;
-  const entries: StateEntry[] = [
-    { key: Buffer.from("test-drop"), value: new Int32Codec().encode(initialValue) }
+  const entries = [
+    create(pb.StateEntrySchema, {
+      key: Buffer.from("test-drop"),
+      value: new Int32Codec().encode(initialValue)
+    })
   ];
   
   const state = new ValueState("test-drop", new Int32Codec(), 0, entries);
@@ -50,12 +52,10 @@ test("ValueState drop test", () => {
   expect(mutations).toEqual([
     create(pb.StateMutationSchema, {
       mutation: {
-        case: "delete",
-        value: {
-          key: Buffer.from("test-drop"),
-        },
-      },
-    }),
+        case: 'delete',
+        value: { key: Buffer.from("test-drop") },
+      }
+    })
   ]);
   
   // Better assertion using create
@@ -125,8 +125,11 @@ function testValueStateRoundTrip<T>(name: string, testValue: T, codec: ValueCode
   // We can't directly extract the mutation value in TypeScript as in Go,
   // so we'll create a new StateEntry from the mutation
   const putMutation = v1.mutations()[0].mutation.value as pb.PutMutation;
-  const entries: StateEntry[] = [
-    { key: putMutation.key, value: putMutation.value }
+  const entries = [
+    create(pb.StateEntrySchema, {
+      key: putMutation.key,
+      value: putMutation.value
+    })
   ];
   
   // Initialize second value with mutation data

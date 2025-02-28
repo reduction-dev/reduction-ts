@@ -1,7 +1,6 @@
 import type { ValueCodec } from "./value-codec";
 import * as pb from "@rxn/proto/handlerpb/handler_pb";
 import { create } from "@bufbuild/protobuf";
-import type { StateEntry } from "@rxn/handler/subject-context";
 
 enum ValueStatus {
   Initial,
@@ -16,7 +15,7 @@ export class ValueState<T> {
   private codec: ValueCodec<T>;
   private defaultValue: T;
 
-  constructor(name: string, codec: ValueCodec<T>, defaultValue: T, entries: StateEntry[]) {
+  constructor(name: string, codec: ValueCodec<T>, defaultValue: T, entries: pb.StateEntry[]) {
     this.name = name;
     this.codec = codec;
     this.defaultValue = defaultValue;
@@ -37,9 +36,7 @@ export class ValueState<T> {
       const mutation = create(pb.StateMutationSchema, {
         mutation: {
           case: 'delete',
-          value: create(pb.DeleteMutationSchema, {
-            key: Buffer.from(this.name),
-          }),
+          value: { key: Buffer.from(this.name) },
         }
       });
 

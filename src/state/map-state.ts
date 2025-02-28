@@ -1,7 +1,6 @@
 import * as pb from "@rxn/proto/handlerpb/handler_pb";
 import { create } from "@bufbuild/protobuf";
 import type { MapCodec } from "./map-codec";
-import type { StateEntry } from "@rxn/handler/subject-context";
 
 // ValueUpdate represents an update to a value in the map
 interface ValueUpdate<V> {
@@ -17,13 +16,13 @@ export class MapState<K, V> {
   #codec: MapCodec<K, V>;
   #size: number = 0;
 
-  constructor(name: string, codec: MapCodec<K, V>, stateEntries: StateEntry[]) {
+  constructor(name: string, codec: MapCodec<K, V>, stateEntries: pb.StateEntry[]) {
     this.#name = name;
     this.#codec = codec;
     this.#loadEntries(stateEntries);
   }
 
-  #loadEntries(entries: StateEntry[]): void {
+  #loadEntries(entries: pb.StateEntry[]): void {
     for (const entry of entries) {
       const keyStr = this.#bytesToKeyString(entry.key);
       const value = this.#codec.decodeValue(entry.value);
@@ -156,9 +155,7 @@ export class MapState<K, V> {
         mutations.push(create(pb.StateMutationSchema, {
           mutation: {
             case: 'delete',
-            value: create(pb.DeleteMutationSchema, {
-              key: keyBytes,
-            }),
+            value: { key: keyBytes },
           }
         }));
       } else {

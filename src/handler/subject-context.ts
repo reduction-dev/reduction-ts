@@ -3,12 +3,7 @@ import { create } from '@bufbuild/protobuf';
 import { type Timestamp, timestampFromDate } from "@bufbuild/protobuf/wkt";
 
 // A map of state IDs to state entries for one key.
-type KeyState = Map<string, StateEntry[]>;
-
-export interface StateEntry {
-  key: Uint8Array;
-  value: any;
-}
+type KeyState = Map<string, pb.StateEntry[]>;
 
 /**
  * Implementation of the Subject interface for handling state and sinks
@@ -38,7 +33,7 @@ export class SubjectContext {
     return this.stateCache.get(name);
   }
 
-  getStateEntries(namespace: string): StateEntry[] {
+  getStateEntries(namespace: string): pb.StateEntry[] {
     return this.keyState.get(namespace) || [];
   }
 
