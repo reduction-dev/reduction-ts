@@ -1,3 +1,4 @@
+import type { Subject } from "@rxn/handler/subject";
 import type { Operator } from "../topology/operator";
 
 // Domain types (not protocol buffer types)
@@ -5,36 +6,6 @@ export interface KeyedEvent {
   key: Uint8Array;
   value: Uint8Array;
   timestamp: Date;
-}
-
-export interface Subject {
-  /**
-   * Sets a value in the state store
-   * @param namespace the namespace to use
-   * @param key the key to set
-   * @param value the value to set
-   */
-  putState(namespace: string, key: Uint8Array, value: Uint8Array): void;
-
-  /**
-   * Deletes a value from the state store
-   * @param namespace the namespace to use
-   * @param key the key to delete
-   */
-  deleteState(namespace: string, key: Uint8Array): void;
-
-  /**
-   * Sends a value to a sink
-   * @param sinkId the sink ID to send to
-   * @param value the value to send
-   */
-  emit(sinkId: string, value: Uint8Array): void;
-
-  /**
-   * Sets a timer that will fire at the given timestamp
-   * @param timestamp the time when the timer should fire
-   */
-  setTimer(timestamp: Date): void;
 }
 
 export interface OperatorHandler {

@@ -1,9 +1,9 @@
 import * as pb from '../proto/handlerpb/handler_pb';
 import { create } from '@bufbuild/protobuf';
-import { SubjectImpl, type StateEntry } from './subject';
+import { Subject, type StateEntry } from './subject';
 
 export class LazySubjectBatch {
-  private subjects: Map<string, SubjectImpl>;
+  private subjects: Map<string, Subject>;
   private state: Map<string, Map<string, StateEntry[]>>;
   private watermark: Date;
 
@@ -29,16 +29,16 @@ export class LazySubjectBatch {
     }
   }
 
-  subjectFor(key: Uint8Array, timestamp: Date): SubjectImpl {
+  subjectFor(key: Uint8Array, timestamp: Date): Subject {
     const keyString = Buffer.from(key).toString('base64');
     
     const foundSubject = this.subjects.get(keyString);
     if (foundSubject) {
-      foundSubject.setTimestamp(timestamp);
+      foundSubject.context.setTimestamp(timestamp);
       return foundSubject;
     }
 
-    const subject = new SubjectImpl(key, timestamp, this.watermark, this.stateForKey(key));
+    const subject = new Subject(key, timestamp, this.watermark, this.stateForKey(key));
     this.subjects.set(keyString, subject);
 
     return subject;
@@ -51,8 +51,8 @@ export class LazySubjectBatch {
     });
 
     for (const subject of this.subjects.values()) {
-      response.sinkRequests.push(...subject.getSinkRequests());
-      response.keyResults.push(...subject.getKeyResults());
+      response.sinkRequests.push(...subject.context.getSinkRequests());
+      response.keyResults.push(...subject.context.getKeyResults());
     }
 
     return response;

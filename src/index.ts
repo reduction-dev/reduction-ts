@@ -1,10 +1,9 @@
-import type { OperatorHandler, Subject, JobDefinition, JobOptions, SourceDefinition, SinkDefinition, KeyedEvent } from './types';
+import type { OperatorHandler, JobDefinition, JobOptions, SourceDefinition, SinkDefinition, KeyedEvent } from './types';
 
 export { Job } from './topology/job';
 
 export type {
   OperatorHandler,
-  Subject,
   JobDefinition,
   JobOptions,
   SourceDefinition,
