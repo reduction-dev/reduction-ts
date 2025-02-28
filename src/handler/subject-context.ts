@@ -6,7 +6,7 @@ import { type Timestamp, timestampFromDate } from "@bufbuild/protobuf/wkt";
 type KeyState = Map<string, StateEntry[]>;
 
 export interface StateEntry {
-  key: string;
+  key: Uint8Array;
   value: any;
 }
 

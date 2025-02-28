@@ -1,7 +1,7 @@
-import type { StateEntry } from "@rxn/handler/subject";
 import type { ValueCodec } from "./value-codec";
 import * as pb from "@rxn/proto/handlerpb/handler_pb";
 import { create } from "@bufbuild/protobuf";
+import type { StateEntry } from "@rxn/handler/subject-context";
 
 enum ValueStatus {
   Initial,

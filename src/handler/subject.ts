@@ -1,15 +1,10 @@
 import * as pb from '../proto/handlerpb/handler_pb';
 import { create } from '@bufbuild/protobuf';
 import { type Timestamp, timestampFromDate } from "@bufbuild/protobuf/wkt";
-import { SubjectContext } from './subject-context';
+import { SubjectContext, type StateEntry } from './subject-context';
 
 // A map of state IDs to state entries for one key.
 type KeyState = Map<string, StateEntry[]>;
-
-export interface StateEntry {
-  key: string;
-  value: any;
-}
 
 /**
  * Implementation of the Subject interface for handling state and sinks
