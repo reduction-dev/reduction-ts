@@ -2,19 +2,12 @@ import * as pb from "@rxn/proto/handlerpb/handler_pb";
 import { create } from "@bufbuild/protobuf";
 import type { MapCodec } from "./map-codec";
 
-// ValueUpdate represents an update to a value in the map
-interface ValueUpdate<V> {
-  isDelete: boolean;
-  value: V;
-}
-
 // MapState manages a map of key-value pairs with state tracking
 export class MapState<K, V> {
   #name: string;
-  #original: Map<string, V> = new Map();
-  #updates: Map<string, ValueUpdate<V>> = new Map();
+  #state: Map<string, V> = new Map();
+  #dirtyKeys: Set<string> = new Set();
   #codec: MapCodec<K, V>;
-  #size: number = 0;
 
   constructor(name: string, codec: MapCodec<K, V>, stateEntries: pb.StateEntry[]) {
     this.#name = name;
@@ -22,136 +15,57 @@ export class MapState<K, V> {
     this.#loadEntries(stateEntries);
   }
 
-  #loadEntries(entries: pb.StateEntry[]): void {
-    for (const entry of entries) {
-      const keyStr = this.#bytesToKeyString(entry.key);
-      const value = this.#codec.decodeValue(entry.value);
-      this.#original.set(keyStr, value);
-    }
-    this.#size = this.#original.size;
-  }
-
-  // Helper method to convert binary key to string for Map usage
-  #bytesToKeyString(bytes: Uint8Array): string {
-    return Array.from(bytes)
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-  }
-
   public get(key: K): V | undefined {
-    const keyBytes = this.#codec.encodeKey(key);
-    const keyStr = this.#bytesToKeyString(keyBytes);
-    
-    // Check updates first
-    const update = this.#updates.get(keyStr);
-    if (update !== undefined) {
-      return update.isDelete ? undefined : update.value;
-    }
-    
-    // Fall back to original values
-    return this.#original.get(keyStr);
+    const mapKey = this.#getMapKey(key);
+    return this.#state.get(mapKey);
   }
 
   public put(key: K, value: V): void {
-    const keyBytes = this.#codec.encodeKey(key);
-    const keyStr = this.#bytesToKeyString(keyBytes);
-    const hadKey = this.has(key);
-    
-    this.#updates.set(keyStr, {
-      isDelete: false,
-      value: value
-    });
-    
-    if (!hadKey) {
-      this.#size++;
-    }
+    const mapKey = this.#getMapKey(key);
+    this.#state.set(mapKey, value);
+    this.#dirtyKeys.add(mapKey);
   }
 
   public delete(key: K): void {
-    const keyBytes = this.#codec.encodeKey(key);
-    const keyStr = this.#bytesToKeyString(keyBytes);
-    if (!this.has(key)) {
-      return;
+    const mapKey = this.#getMapKey(key);
+    const didRemove = this.#state.delete(mapKey);
+    if (didRemove) {
+      this.#dirtyKeys.add(mapKey);
     }
-    
-    this.#updates.set(keyStr, {
-      isDelete: true,
-      value: {} as V // Dummy value, never used
-    });
-    
-    this.#size--;
   }
 
   public has(key: K): boolean {
-    return this.get(key) !== undefined;
+    const mapKey = this.#getMapKey(key);
+    return this.#state.has(mapKey);
   }
 
-  public entries(): [K, V][] {
-    const result: [K, V][] = [];
-    
-    // Process original entries
-    for (const [keyStr, value] of this.#original.entries()) {
-      // Check if this key has an update
-      const update = this.#updates.get(keyStr);
-      if (update !== undefined) {
-        if (!update.isDelete) {
-          // Use the updated value
-          // Note: We need to convert the string key back to bytes for decodeKey
-          const keyBytes = this.#keyStringToBytes(keyStr);
-          const key = this.#codec.decodeKey(keyBytes);
-          result.push([key, update.value]);
-        }
-        // Skip if deleted
-        continue;
-      }
-      
-      // No update, use original value
-      const keyBytes = this.#keyStringToBytes(keyStr);
+  public *entries(): IterableIterator<[K, V]> {
+    for (const [keyStr, value] of this.#state.entries()) {
+      const keyBytes = this.#mapKeyToBytes(keyStr);
       const key = this.#codec.decodeKey(keyBytes);
-      result.push([key, value]);
+      yield [key, value];
     }
-    
-    // Process updates for keys that weren't in the original map
-    for (const [keyStr, update] of this.#updates.entries()) {
-      if (this.#original.has(keyStr)) {
-        // Already processed above
-        continue;
-      }
-      
-      if (!update.isDelete) {
-        const keyBytes = this.#keyStringToBytes(keyStr);
-        const key = this.#codec.decodeKey(keyBytes);
-        result.push([key, update.value]);
-      }
-    }
-    
-    return result;
   }
 
-  // Helper method to convert string key back to binary for decodeKey
-  #keyStringToBytes(keyStr: string): Uint8Array {
-    const bytes = new Uint8Array(keyStr.length / 2);
-    for (let i = 0; i < keyStr.length; i += 2) {
-      bytes[i / 2] = parseInt(keyStr.substring(i, i + 2), 16);
+  public *keys(): IterableIterator<K> {
+    for (const [key] of this.entries()) {
+      yield key;
     }
-    return bytes;
   }
 
-  public keys(): K[] {
-    return this.entries().map(([key]) => key);
-  }
-
-  public values(): V[] {
-    return this.entries().map(([, value]) => value);
+  public values(): MapIterator<V> {
+    return this.#state.values();
   }
 
   public mutations(): pb.StateMutation[] {
     const mutations: pb.StateMutation[] = [];
     
-    for (const [keyStr, update] of this.#updates.entries()) {
-      const keyBytes = this.#keyStringToBytes(keyStr);
+    for (const keyStr of this.#dirtyKeys) {
+      const keyBytes = this.#mapKeyToBytes(keyStr);
+      const value = this.#state.get(keyStr);
       
-      if (update.isDelete) {
+      if (value === undefined) {
+        // This key was deleted
         mutations.push(create(pb.StateMutationSchema, {
           mutation: {
             case: 'delete',
@@ -159,7 +73,8 @@ export class MapState<K, V> {
           }
         }));
       } else {
-        const valueData = this.#codec.encodeValue(update.value);
+        // This key was updated
+        const valueData = this.#codec.encodeValue(value);
         mutations.push(create(pb.StateMutationSchema, {
           mutation: {
             case: 'put',
@@ -176,31 +91,42 @@ export class MapState<K, V> {
   }
   
   public clear(): void {
-    // Mark all original entries as deleted
-    for (const keyStr of this.#original.keys()) {
-      this.#updates.set(keyStr, {
-        isDelete: true,
-        value: {} as V // Dummy value, never used
-      });
+    // Mark all keys as dirty before clearing
+    for (const keyStr of this.#state.keys()) {
+      this.#dirtyKeys.add(keyStr);
     }
     
-    // Also mark all updated entries as deleted
-    for (const keyStr of this.#updates.keys()) {
-      this.#updates.set(keyStr, {
-        isDelete: true,
-        value: {} as V // Dummy value, never used
-      });
-    }
-    
-    this.#size = 0;
+    // Clear the state map
+    this.#state.clear();
   }
   
   public get size(): number {
-    return this.#size;
+    return this.#state.size;
   }
 
   public get name(): string {
     return this.#name;
   }
 
+  #getMapKey(key: K): string {
+    return this.#bytesToMapKey(this.#codec.encodeKey(key))
+  }
+
+  #loadEntries(entries: pb.StateEntry[]): void {
+    for (const entry of entries) {
+      const keyStr = this.#bytesToMapKey(entry.key);
+      const value = this.#codec.decodeValue(entry.value);
+      this.#state.set(keyStr, value);
+    }
+  }
+
+  // Helper method to convert string key back to binary for decodeKey
+  #mapKeyToBytes(keyStr: string): Uint8Array {
+    return Buffer.from(keyStr, 'base64');
+  }
+
+  // Helper method to convert binary key to string for Map usage
+  #bytesToMapKey(bytes: Uint8Array): string {
+    return Buffer.from(bytes).toString('base64');
+  }
 }

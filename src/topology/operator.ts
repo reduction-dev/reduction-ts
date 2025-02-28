@@ -8,7 +8,7 @@ interface OperatorParams {
 }
 
 /**
- * The operator which invokes your operator handler.
+ * The operator that invokes your operator handler.
  */
 export class Operator {
   private id: string;

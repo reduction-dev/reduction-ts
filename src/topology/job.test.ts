@@ -12,16 +12,15 @@ test("synthesize job config", () => {
     workingStorageLocation: "/tmp/work",
     savepointStorageLocation: "/tmp/save"
   });
-
   const sink = new stdio.Sink(job, "sink-id");
   const source = new stdio.Source(job, "source-id", {
-    keyEvent: (event) => {
-      return [{
+    keyEvent: (event) => (
+      [{
         key: Uint8Array.from("test-key"),
         value: event,
         timestamp: new Date(),
-      }];
-    }
+      }]
+    )
   });
   const operator = new topology.Operator(job, "operator-id", {
     parallelism: 1,
@@ -35,11 +34,11 @@ test("synthesize job config", () => {
   source.connect(operator);
   operator.connect(sink);
 
-  const synth = job.context.synthesize();
-  const jobConfig = fromJson(config_pb.JobConfigSchema, synth.config);
+  const { config } = job.context.synthesize();
+  const pbConfig = fromJson(config_pb.JobConfigSchema, config);
 
   // Create the expected configuration
-  expect(jobConfig).toEqual(create(config_pb.JobConfigSchema, {
+  expect(pbConfig).toEqual(create(config_pb.JobConfigSchema, {
     job: {
       workerCount: 1,
       keyGroupCount: 2,
@@ -50,15 +49,15 @@ test("synthesize job config", () => {
       id: "source-id",
       config: {
         case: "stdio",
-        value: {}
-      }
+        value: {},
+      },
     }],
     sinks: [{
       id: "sink-id",
       config: {
         case: "stdio",
-        value: {}
+        value: {},
       }
-    }]
+    }],
   }));
 });

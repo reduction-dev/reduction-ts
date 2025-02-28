@@ -2,20 +2,18 @@ import { create } from "@bufbuild/protobuf";
 import { timestampFromDate } from "@bufbuild/protobuf/wkt";
 import { type Client, createClient } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-node";
-import { expect, test } from 'bun:test';
-import { Job } from "../topology/job";
-import * as pb from "../proto/handlerpb/handler_pb";
-import type { KeyedEvent, OperatorHandler } from "../types";
-import { Server } from "../server/server";
 import * as stdio from "@rxn/connectors/stdio";
-import * as topology from "@rxn/topology";
-import { ValueSpec } from "@rxn/topology/value-spec";
-import { UInt64Codec } from "@rxn/state/scalar-codecs";
 import type { Subject } from "@rxn/handler/subject";
+import * as topology from "@rxn/topology";
+import { expect, test } from 'bun:test';
+import * as pb from "../proto/handlerpb/handler_pb";
+import { Server } from "../server/server";
+import { Job } from "../topology/job";
+import type { KeyedEvent, OperatorHandler } from "../types";
+
+const now = new Date();
 
 test('Process Keyed Event', async () => {
-  const now = new Date();
-  
   // Setup server and client
   const client = await setupTestServer((op, sink) => {
     return new TestHandler({
@@ -43,27 +41,22 @@ test('Process Keyed Event', async () => {
     watermark: timestampFromDate(now),
   });
   
-  // Call the server
   const response = await client.processEventBatch(request);
   
-  // Validate the response structure
-  expect(response.keyResults.length).toBe(1);
-  expect(response.sinkRequests.length).toBe(1);
+  expect(response.keyResults).toEqual([
+    expect.objectContaining({
+      key: new TextEncoder().encode("test-key"),
+      newTimers: [timestampFromDate(now)]
+    })
+  ]);
   
-  // Verify key result
-  const keyResult = response.keyResults[0];
-  expect(Buffer.from(keyResult.key).toString()).toBe("test-key");
-  expect(keyResult.newTimers.length).toBe(1);
-  
-  // Verify sink request
-  const sinkRequest = response.sinkRequests[0];
-  expect(sinkRequest.id).toBe("test-sink");
-  expect(Buffer.from(sinkRequest.value).toString()).toBe("test-output");
+  expect(response.sinkRequests).toEqual([create(pb.SinkRequestSchema, {
+    id: "test-sink",
+    value: new TextEncoder().encode("test-output")
+  })]);
 });
 
 test('Process Timer Expired', async () => {
-  const now = new Date();
-  
   // Setup server and client
   const client = await setupTestServer((op, sink) => {
     return new TestHandler({
@@ -92,18 +85,17 @@ test('Process Timer Expired', async () => {
   // Call the server
   const response = await client.processEventBatch(request);
   
-  // Validate the response structure
-  expect(response.keyResults.length).toBe(1);
-  expect(response.sinkRequests.length).toBe(1);
+  // Consolidated assertions for both length and content
+  expect(response.keyResults).toEqual([
+    expect.objectContaining({
+      key: new TextEncoder().encode("test-key")
+    })
+  ]);
   
-  // Verify key result
-  const keyResult = response.keyResults[0];
-  expect(Buffer.from(keyResult.key).toString()).toBe("test-key");
-  
-  // Verify sink request
-  const sinkRequest = response.sinkRequests[0];
-  expect(sinkRequest.id).toBe("test-sink");
-  expect(Buffer.from(sinkRequest.value).toString()).toBe("timer-output");
+  expect(response.sinkRequests).toEqual([create(pb.SinkRequestSchema, {
+    id: "test-sink",
+    value: new TextEncoder().encode("timer-output")
+  })]);
 });
 
 // test('Process State Mutations', async () => {
@@ -286,8 +278,6 @@ test('Process Timer Expired', async () => {
 // });
 
 test('Process Empty Request', async () => {
-  const now = new Date();
-  
   // Setup server and client with sink parameter
   const client = await setupTestServer((op, sink) => {
     return new TestHandler();
@@ -299,13 +289,13 @@ test('Process Empty Request', async () => {
   });
   const response = await client.processEventBatch(request);
   
-  expect(response.keyResults.length).toBe(0);
-  expect(response.sinkRequests.length).toBe(0);
+  expect(response).toEqual(create(pb.ProcessEventBatchResponseSchema, {
+    keyResults: [],
+    sinkRequests: []
+  }));
 });
 
 test('Process Mixed Event Types', async () => {
-  const now = new Date();
-  
   // Setup server and client with sink parameter
   const client = await setupTestServer((op, sink) => {
     return new TestHandler({
@@ -347,18 +337,23 @@ test('Process Mixed Event Types', async () => {
   
   const response = await client.processEventBatch(request);
   
-  expect(response.keyResults.length).toBe(1);
-  expect(response.sinkRequests.length).toBe(2);
-  
-  // Verify key result
-  const keyResult = response.keyResults[0];
-  expect(Buffer.from(keyResult.key).toString()).toBe("test-key");
+  expect(response.keyResults).toEqual([
+    expect.objectContaining({
+      key: new TextEncoder().encode("test-key")
+    })
+  ]);
   
   // Verify sink requests (order should be preserved)
-  expect(response.sinkRequests[0].id).toBe("test-sink");
-  expect(Buffer.from(response.sinkRequests[0].value).toString()).toBe("keyed-output");
-  expect(response.sinkRequests[1].id).toBe("test-sink");
-  expect(Buffer.from(response.sinkRequests[1].value).toString()).toBe("timer-output");
+  expect(response.sinkRequests).toEqual([
+    create(pb.SinkRequestSchema, {
+      id: "test-sink",
+      value: new TextEncoder().encode("keyed-output")
+    }),
+    create(pb.SinkRequestSchema, {
+      id: "test-sink",
+      value: new TextEncoder().encode("timer-output")
+    })
+  ]);
 });
 
 // test('Drop Value State', async () => {

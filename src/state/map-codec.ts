@@ -1,5 +1,6 @@
 /**
- * MapCodec defines how keys and values are encoded/decoded for storage.
+ * MapCodec defines how the keys and values of map entries are encoded/decoded
+ * for storage.
  */
 export interface MapCodec<K, T> {
   encodeKey(key: K): Uint8Array;

@@ -9,69 +9,70 @@ enum ValueStatus {
 }
 
 export class ValueState<T> {
-  private name: string;
-  private value: T;
-  private status: ValueStatus = ValueStatus.Initial;
-  private codec: ValueCodec<T>;
-  private defaultValue: T;
+  #name: string;
+  #value: T;
+  #status: ValueStatus = ValueStatus.Initial;
+  #codec: ValueCodec<T>;
+  #defaultValue: T;
 
   constructor(name: string, codec: ValueCodec<T>, defaultValue: T, entries: pb.StateEntry[]) {
-    this.name = name;
-    this.codec = codec;
-    this.defaultValue = defaultValue;
+    this.#name = name;
+    this.#codec = codec;
+    this.#defaultValue = defaultValue;
 
     if (entries.length === 0) {
-      this.value = defaultValue;
+      this.#value = defaultValue;
     } else {
-      this.value = this.codec.decode(entries[0].value);
+      this.#value = this.#codec.decode(entries[0].value);
     }
   }
 
   public mutations(): pb.StateMutation[] {
-    if (this.status === ValueStatus.Initial) {
-      return [];
+    switch (this.#status) {
+      case ValueStatus.Initial:
+        return [];
+      case ValueStatus.Deleted:
+        return [
+          create(pb.StateMutationSchema, {
+            mutation: {
+              case: 'delete',
+              value: { key: Buffer.from(this.#name) },
+            }
+          })
+        ];
+      case ValueStatus.Updated:
+        const data = this.#codec.encode(this.#value);
+        return [
+          create(pb.StateMutationSchema, {
+            mutation: {
+              case: 'put',
+              value: create(pb.PutMutationSchema, {
+                key: Buffer.from(this.#name),
+                value: data,
+              }),
+            }
+          })
+        ];
+      default:
+        return [];
     }
-
-    if (this.status === ValueStatus.Deleted) {
-      const mutation = create(pb.StateMutationSchema, {
-        mutation: {
-          case: 'delete',
-          value: { key: Buffer.from(this.name) },
-        }
-      });
-
-      return [mutation];
-    }
-
-    const data = this.codec.encode(this.value);
-    const mutation = create(pb.StateMutationSchema, {
-      mutation: {
-        case: 'put',
-        value: create(pb.PutMutationSchema, {
-          key: Buffer.from(this.name),
-          value: data,
-        }),
-      }
-    });
-
-    return [mutation];
   }
 
-  public getName(): string {
-    return this.name;
+  public get name(): string {
+    return this.#name;
   }
 
-  public getValue(): T {
-    return this.value;
+  public get value(): T {
+    return this.#value;
   }
 
   public setValue(value: T): void {
-    this.status = ValueStatus.Updated;
-    this.value = value;
+    this.#status = ValueStatus.Updated;
+    this.#value = value;
   }
 
   public drop(): void {
-    this.status = ValueStatus.Deleted;
-    this.value = this.defaultValue;
+    this.#status = ValueStatus.Deleted;
+    this.#value = this.#defaultValue;
   }
 }

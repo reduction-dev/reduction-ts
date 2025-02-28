@@ -1,7 +1,5 @@
-import * as pb from '../proto/handlerpb/handler_pb';
-import { create } from '@bufbuild/protobuf';
-import { type Timestamp, timestampFromDate } from "@bufbuild/protobuf/wkt";
-import { SubjectContext, type StateEntry } from './subject-context';
+import type { StateEntry } from '@rxn/proto/handlerpb/handler_pb';
+import { SubjectContext } from './subject-context';
 
 // A map of state IDs to state entries for one key.
 type KeyState = Map<string, StateEntry[]>;

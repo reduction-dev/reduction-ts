@@ -13,7 +13,7 @@ export class Job {
 
   constructor(params: JobParams) {
     this.context = new JobContext(params)
-    this.port = params.port ?? 8080;
+    this.port = 8080;
   }
 
   /**

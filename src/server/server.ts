@@ -1,11 +1,9 @@
-import { createServer, Server as HttpServer } from 'node:http';
 import type { ConnectRouter } from "@connectrpc/connect";
 import { connectNodeAdapter } from "@connectrpc/connect-node";
-import { Handler } from '../proto/handlerpb/handler_pb';
-import * as handler_pb from '../proto/handlerpb/handler_pb';
+import { createServer, Server as HttpServer } from 'node:http';
 import { SynthesizedHandler } from '../handler/synthesized-handler';
-import { create } from '@bufbuild/protobuf';
-import { timestampFromDate } from '@bufbuild/protobuf/wkt';
+import * as handler_pb from '../proto/handlerpb/handler_pb';
+import { Handler } from '../proto/handlerpb/handler_pb';
 
 export class Server {
   private handler: SynthesizedHandler;

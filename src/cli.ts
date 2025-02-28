@@ -23,7 +23,6 @@ program
   .command('config')
   .description('Output the job configuration as JSON')
   .action(() => {
-    // This will be provided by the user's implementation
     console.error('Error: You need to provide an implementation of the config command.');
     process.exit(1);
   });
@@ -34,7 +33,6 @@ program
   .description('Start the handler server')
   .option('-p, --port <port>', 'The port to listen on', '8080')
   .action((options) => {
-    // This will be provided by the user's implementation
     console.error('Error: You need to provide an implementation of the serve command.');
     process.exit(1);
   });

@@ -25,10 +25,16 @@ export class SubjectContext {
     this.keyState = keyState;
   }
 
+  /**
+   * Puts any state type into a cache
+   */
   putState(name: string, state: unknown): void {
     this.stateCache.set(name, state); 
   }
 
+  /**
+   * Gets and unknown state type from the cache
+   */
   getState(name: string): unknown {
     return this.stateCache.get(name);
   }
@@ -36,22 +42,6 @@ export class SubjectContext {
   getStateEntries(namespace: string): pb.StateEntry[] {
     return this.keyState.get(namespace) || [];
   }
-
-  // putState(namespace: string, key: Uint8Array, value: Uint8Array): void {
-  //   if (!this.stateMutations.has(namespace)) {
-  //     this.stateMutations.set(namespace, new Map());
-  //   }
-    
-  //   const keyStr = Buffer.from(key).toString('base64');
-  //   const namespaceMap = this.stateMutations.get(namespace)!;
-    
-  //   const putMutation = create(pb.PutMutationSchema, {
-  //     key: key,
-  //     value: value
-  //   });
-    
-  //   namespaceMap.set(keyStr, { put: putMutation });
-  // }
 
   deleteState(namespace: string, key: Uint8Array): void {
     if (!this.stateMutations.has(namespace)) {

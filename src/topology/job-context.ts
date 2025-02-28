@@ -2,19 +2,13 @@ import { SynthesizedHandler } from "../handler/synthesized-handler";
 import type { KeyEventFunc, OperatorHandler } from "../types";
 import * as config_pb from '../proto/jobconfigpb/jobconfig_pb';
 import type { Operator } from "./operator";
-import { create, toJson } from "@bufbuild/protobuf";
+import { create, toJson, type JsonValue } from "@bufbuild/protobuf";
 
 export interface JobContextParams {
   workerCount?: number;
   keyGroupCount?: number;
   workingStorageLocation: string;
   savepointStorageLocation?: string;
-  port?: number;
-}
-
-interface JobSynthesis {
-  handler: SynthesizedHandler;
-  config: any;
 }
 
 interface SourceSynthesis {
@@ -23,44 +17,34 @@ interface SourceSynthesis {
   config: config_pb.Source;
 }
 
-type LazySourceSynthesis = () => SourceSynthesis;
-
 interface OperatorSynthesis {
   handler: OperatorHandler;
 }
-
-type LazyOperatorSynthesis = () => OperatorSynthesis;
 
 interface SinkSynthesis {
   config: config_pb.Sink;
 }
 
-type LazySinkSynthesis = () => SinkSynthesis;
+type Lazy<T> = () => T
 
 /**
  * JobContext is an internal object passed within the job topology to register
  * sources, sinks, and operators.
  */
 export class JobContext {
-  private workerCount: number;
-  private keyGroupCount: number;
-  private workingStorageLocation: string;
-  private savepointStorageLocation: string;
-  private sources: LazySourceSynthesis[];
-  private sinks: LazySinkSynthesis[];
-  private operators: LazyOperatorSynthesis[];
+  private sources: Lazy<SourceSynthesis>[];
+  private sinks: Lazy<SinkSynthesis>[];
+  private operators: Lazy<OperatorSynthesis>[];
+  private jobParams: JobContextParams
 
   constructor(params: JobContextParams) {
-    this.workerCount = params.workerCount ?? 1;
-    this.keyGroupCount = params.keyGroupCount ?? 8;
-    this.workingStorageLocation = params.workingStorageLocation;
-    this.savepointStorageLocation = params.savepointStorageLocation ?? params.workingStorageLocation + '/savepoints';
+    this.jobParams = params;
     this.sources = [];
     this.sinks = [];
     this.operators = [];
   }
 
-  public synthesize(): JobSynthesis {
+  public synthesize(): { handler: SynthesizedHandler, config: JsonValue } {
     if (this.sources.length !== 1) {
       throw new Error('Job must have exactly one source');
     }
@@ -78,12 +62,7 @@ export class JobContext {
     const operator = this.operators[0]();
 
     const jobConfig = create(config_pb.JobConfigSchema, {
-      job: create(config_pb.JobSchema, {
-        workerCount: this.workerCount,
-        keyGroupCount: this.keyGroupCount,
-        savepointStorageLocation: this.savepointStorageLocation,
-        workingStorageLocation: this.workingStorageLocation
-      }),
+      job: create(config_pb.JobSchema, this.jobParams),
       sources: [source.config],
       sinks: [sink.config]
     });
@@ -94,15 +73,15 @@ export class JobContext {
     }
   }
 
-  public registerSource(source: LazySourceSynthesis): void {
+  public registerSource(source: Lazy<SourceSynthesis>): void {
     this.sources.push(source);
   }
 
-  public registerSink(sink: LazySinkSynthesis): void {
+  public registerSink(sink: Lazy<SinkSynthesis>): void {
     this.sinks.push(sink);
   }
 
-  public registerOperator(operator: LazyOperatorSynthesis): void {
+  public registerOperator(operator: Lazy<OperatorSynthesis>): void {
     this.operators.push(operator);
   }
 }
