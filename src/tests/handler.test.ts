@@ -23,7 +23,7 @@ test('Process Keyed Event', async () => {
       }
     });
   });
-  
+
   // Create the request with a keyed event
   const request = create(pb.ProcessEventBatchRequestSchema, {
     events: [
@@ -40,16 +40,16 @@ test('Process Keyed Event', async () => {
     ],
     watermark: timestampFromDate(now),
   });
-  
+
   const response = await client.processEventBatch(request);
-  
+
   expect(response.keyResults).toEqual([
     expect.objectContaining({
       key: new TextEncoder().encode("test-key"),
       newTimers: [timestampFromDate(now)]
     })
   ]);
-  
+
   expect(response.sinkRequests).toEqual([create(pb.SinkRequestSchema, {
     id: "test-sink",
     value: new TextEncoder().encode("test-output")
@@ -65,7 +65,7 @@ test('Process Timer Expired', async () => {
       }
     });
   });
-  
+
   // Create the request with a timer expired event
   const request = create(pb.ProcessEventBatchRequestSchema, {
     events: [
@@ -81,17 +81,17 @@ test('Process Timer Expired', async () => {
     ],
     watermark: timestampFromDate(now),
   });
-  
+
   // Call the server
   const response = await client.processEventBatch(request);
-  
+
   // Consolidated assertions for both length and content
   expect(response.keyResults).toEqual([
     expect.objectContaining({
       key: new TextEncoder().encode("test-key")
     })
   ]);
-  
+
   expect(response.sinkRequests).toEqual([create(pb.SinkRequestSchema, {
     id: "test-sink",
     value: new TextEncoder().encode("timer-output")
@@ -110,11 +110,11 @@ test('Process State Mutations', async () => {
       }
     });
   });
-  
+
   const now = new Date();
-  
+
   // Create the request with an initial state
-    const request = create(pb.ProcessEventBatchRequestSchema, {
+  const request = create(pb.ProcessEventBatchRequestSchema, {
     events: [
       create(pb.EventSchema, {
         event: {
@@ -145,10 +145,10 @@ test('Process State Mutations', async () => {
     ],
     watermark: timestampFromDate(now)
   });
-  
+
   // Call the server
   const response = await client.processEventBatch(request);
-  
+
   expect(response.keyResults).toEqual([create(pb.KeyResultSchema, {
     key: new TextEncoder().encode("test-key"),
     stateMutationNamespaces: [{
@@ -166,113 +166,109 @@ test('Process State Mutations', async () => {
   })]);
 });
 
-// test('Process Multiple Events With State', async () => {
-//   // Setup server and client
-//   const client = await setupTestServer((op, sink) => {
-//     return new TestHandler({
-//       onEvent: (subject, event) => {
-//         const counterKey = new TextEncoder().encode("counter");
-//         const counter = subject.state.get('test-state', counterKey)?.at(0) || 0;
-//         subject.putState('test-state', counterKey, new Uint8Array([counter + 1]));
-//         sink.collect(subject, new TextEncoder().encode(`incremented-to-${counter + 1}`));
-//       }
-//     });
-//   });
-  
-//   const now = new Date();
-  
-//   const request = create(pb.ProcessEventBatchRequestSchema, {
-//     events: [
-//       {
-//         event: {
-//           case: 'keyedEvent',
-//           value: create(pb.KeyedEventSchema, {
-//             key: new TextEncoder().encode("key-1"),
-//             timestamp: timestampFromDate(now),
-//           })
-//         }
-//       },
-//       {
-//         event: {
-//           case: 'keyedEvent',
-//           value: create(pb.KeyedEventSchema, {
-//             key: new TextEncoder().encode("key-2"),
-//             timestamp: timestampFromDate(now),
-//           })
-//         }
-//       }
-//     ],
-//     keyStates: [
-//       {
-//         key: new TextEncoder().encode("key-1"),
-//         stateEntryNamespaces: [
-//           {
-//             namespace: "test-state",
-//             entries: [
-//               {
-//                 key: new TextEncoder().encode("counter"),
-//                 value: new Uint8Array([1])
-//               }
-//             ]
-//           }
-//         ]
-//       },
-//       {
-//         key: new TextEncoder().encode("key-2"),
-//         stateEntryNamespaces: [
-//           {
-//             namespace: "test-state",
-//             entries: [
-//               {
-//                 key: new TextEncoder().encode("counter"),
-//                 value: new Uint8Array([2])
-//               }
-//             ]
-//           }
-//         ]
-//       }
-//     ],
-//     watermark: timestampFromDate(now)
-//   });
-  
-//   const response = await client.processEventBatch(request);
-  
-//   expect(response.keyResults.length).toBe(2);
-//   expect(response.sinkRequests.length).toBe(2);
-  
-//   // Results can be in any order, so sort by key for comparison
-//   response.keyResults.sort((a, b) => Buffer.compare(a.key, b.key));
-  
-//   // Verify key-1 result
-//   const key1Result = response.keyResults[0];
-//   expect(Buffer.from(key1Result.key).toString()).toBe("key-1");
-//   expect(key1Result.stateMutationNamespaces.length).toBe(1);
-//   expect(key1Result.stateMutationNamespaces[0].namespace).toBe("test-state");
-//   expect(key1Result.stateMutationNamespaces[0].mutations[0].mutation.case).toBe("put");
-//   if (key1Result.stateMutationNamespaces[0].mutations[0].mutation.case === "put") {
-//     expect(Buffer.from(key1Result.stateMutationNamespaces[0].mutations[0].mutation.value.key).toString()).toBe("counter");
-//     expect(key1Result.stateMutationNamespaces[0].mutations[0].mutation.value.value[0]).toBe(2);
-//   }
-  
-//   // Verify key-2 result
-//   const key2Result = response.keyResults[1];
-//   expect(Buffer.from(key2Result.key).toString()).toBe("key-2");
-//   expect(key2Result.stateMutationNamespaces[0].mutations[0].mutation.case).toBe("put");
-//   if (key2Result.stateMutationNamespaces[0].mutations[0].mutation.case === "put") {
-//     expect(Buffer.from(key2Result.stateMutationNamespaces[0].mutations[0].mutation.value.key).toString()).toBe("counter");
-//     expect(key2Result.stateMutationNamespaces[0].mutations[0].mutation.value.value[0]).toBe(3);
-//   }
-  
-//   // Sort sink requests by subject key for deterministic comparison
-//   const sinkRequests = response.sinkRequests.sort((a, b) => a.id.localeCompare(b.id));
-//   expect(sinkRequests.length).toBe(2);
-//   expect(sinkRequests[0].id).toBe("test-sink");
-//   expect(sinkRequests[1].id).toBe("test-sink");
-// });
+test('Process Multiple Events With State', async () => {
+  const codec = new StringUintMapCodec();
+
+  const client = await setupTestServer((op, sink) => {
+    const spec = new topology.MapSpec(op, 'count-state', codec);
+    return new TestHandler({
+      onEvent: (subject, event) => {
+        const counts = spec.stateFor(subject);
+        const currentValue = counts.get("counter") ?? 0;
+        counts.put("counter", currentValue + 1);
+      }
+    });
+  });
+
+  const request = create(pb.ProcessEventBatchRequestSchema, {
+    events: [
+      create(pb.EventSchema, {
+        event: {
+          case: 'keyedEvent',
+          value: create(pb.KeyedEventSchema, {
+            key: Buffer.from("key-1"),
+            timestamp: timestampFromDate(now),
+          })
+        }
+      }),
+      create(pb.EventSchema, {
+        event: {
+          case: 'keyedEvent',
+          value: create(pb.KeyedEventSchema, {
+            key: Buffer.from("key-2"),
+            timestamp: timestampFromDate(now),
+          })
+        }
+      })
+    ],
+    keyStates: [
+      create(pb.KeyStateSchema, {
+        key: new TextEncoder().encode("key-1"),
+        stateEntryNamespaces: [{
+          namespace: "count-state",
+          entries: [{
+            key: new TextEncoder().encode("counter"),
+            value: codec.encodeValue(1)
+          }]
+        }]
+      }),
+      create(pb.KeyStateSchema, {
+        key: new TextEncoder().encode("key-2"),
+        stateEntryNamespaces: [{
+            namespace: "count-state",
+            entries: [{
+              key: new TextEncoder().encode("counter"),
+              value: codec.encodeValue(2)
+          }]
+        }]
+      })
+    ],
+    watermark: timestampFromDate(now)
+  });
+
+  const response = await client.processEventBatch(request);
+
+  // Sort results for deterministic comparison. It's ok for results for keys to
+  // arrive in any order.
+  response.keyResults.sort((a, b) => Buffer.compare(a.key, b.key));
+
+  expect(response.keyResults).toEqual([
+    create(pb.KeyResultSchema, {
+      key: new TextEncoder().encode("key-1"),
+      stateMutationNamespaces: [{
+        namespace: "count-state",
+        mutations: [{
+          mutation: {
+            case: "put",
+            value: create(pb.PutMutationSchema, {
+              key: new TextEncoder().encode("counter"),
+              value: codec.encodeValue(2)
+            })
+          }
+        }]
+      }]
+    }),
+    create(pb.KeyResultSchema, {
+      key: new TextEncoder().encode("key-2"),
+      stateMutationNamespaces: [{
+        namespace: "count-state",
+        mutations: [{
+          mutation: {
+            case: "put",
+            value: create(pb.PutMutationSchema, {
+              key: new TextEncoder().encode("counter"),
+              value: codec.encodeValue(3)
+            })
+          }
+        }]
+      }]
+    })
+  ]);
+});
 
 // test('Drop Value State', async () => {
 //   const now = new Date();
-  
+
 //   const client = await setupTestServer((op, sink) => {
 //     const countSpec = new ValueSpec(op, 'count', new UInt64Codec(), 0);
 //     return new TestHandler({
@@ -284,7 +280,7 @@ test('Process State Mutations', async () => {
 //       }
 //     });
 //   });
-  
+
 //   const request = create(pb.ProcessEventBatchRequestSchema, {
 //     events: [
 //       {
@@ -315,23 +311,23 @@ test('Process State Mutations', async () => {
 //     ],
 //     watermark: timestampFromDate(now)
 //   });
-  
+
 //   const response = await client.processEventBatch(request);
-  
+
 //   expect(response.keyResults.length).toBe(1);
 //   const keyResult = response.keyResults[0];
 //   expect(Buffer.from(keyResult.key).toString()).toBe("test-key");
 //   expect(keyResult.stateMutationNamespaces.length).toBe(1);
-  
+
 //   const namespace = keyResult.stateMutationNamespaces[0];
 //   expect(namespace.namespace).toBe("test-value");
 //   expect(namespace.mutations.length).toBe(1);
 //   expect(namespace.mutations[0].mutation.case).toBe("delete");
-  
+
 //   if (namespace.mutations[0].mutation.case === "delete") {
 //     expect(Buffer.from(namespace.mutations[0].mutation.value.key).toString()).toBe("test-value");
 //   }
-  
+
 //   // Verify sink request
 //   expect(response.sinkRequests.length).toBe(1);
 //   expect(response.sinkRequests[0].id).toBe("test-sink");
@@ -340,7 +336,7 @@ test('Process State Mutations', async () => {
 
 // test('Increment Value State', async () => {
 //   const now = new Date();
-  
+
 //   // Setup server and client with sink parameter
 //   const client = await setupTestServer((op, sink) => {
 //     return new TestHandler({
@@ -352,7 +348,7 @@ test('Process State Mutations', async () => {
 //       }
 //     });
 //   });
-  
+
 //   const request = create(pb.ProcessEventBatchRequestSchema, {
 //     events: [
 //       {
@@ -374,24 +370,24 @@ test('Process State Mutations', async () => {
 //     ],
 //     watermark: timestampFromDate(now)
 //   });
-  
+
 //   const response = await client.processEventBatch(request);
-  
+
 //   expect(response.keyResults.length).toBe(1);
 //   const keyResult = response.keyResults[0];
 //   expect(Buffer.from(keyResult.key).toString()).toBe("test-key");
 //   expect(keyResult.stateMutationNamespaces.length).toBe(1);
-  
+
 //   const namespace = keyResult.stateMutationNamespaces[0];
 //   expect(namespace.namespace).toBe("counter-state");
 //   expect(namespace.mutations.length).toBe(1);
 //   expect(namespace.mutations[0].mutation.case).toBe("put");
-  
+
 //   if (namespace.mutations[0].mutation.case === "put") {
 //     expect(Buffer.from(namespace.mutations[0].mutation.value.key).toString()).toBe("counter-state");
 //     expect(namespace.mutations[0].mutation.value.value[0]).toBe(2);
 //   }
-  
+
 //   // Verify the sink requests
 //   expect(response.sinkRequests.length).toBe(2);
 //   expect(response.sinkRequests[0].id).toBe("test-sink");
@@ -401,7 +397,7 @@ test('Process State Mutations', async () => {
 // });
 
 // Test handler implementation for tests
-class TestHandler implements OperatorHandler{
+class TestHandler implements OperatorHandler {
   onEventFn?: (subject: Subject, event: KeyedEvent) => void;
   onTimerExpiredFn?: (subject: Subject, timer: Date) => void;
 
