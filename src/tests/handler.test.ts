@@ -10,6 +10,7 @@ import * as pb from "../proto/handlerpb/handler_pb";
 import { Server } from "../server/server";
 import { Job } from "../topology/job";
 import type { KeyedEvent, OperatorHandler } from "../types";
+import { UInt64Codec } from "../state/scalar-codecs";
 
 const now = new Date();
 
@@ -266,73 +267,72 @@ test('Process Multiple Events With State', async () => {
   ]);
 });
 
-// test('Drop Value State', async () => {
-//   const now = new Date();
+test('Drop Value State', async () => {
+  const codec = new UInt64Codec();
+  
+  // Setup server with ValueSpec
+  const client = await setupTestServer((op, sink) => {
+    const spec = new topology.ValueSpec(op, 'value-state', codec, 0);
+    return new TestHandler({
+      onEvent: (subject, event) => {
+        const counter = spec.stateFor(subject);
+        counter.drop();
+      }
+    });
+  });
 
-//   const client = await setupTestServer((op, sink) => {
-//     const countSpec = new ValueSpec(op, 'count', new UInt64Codec(), 0);
-//     return new TestHandler({
-//       onEvent: (subject, event) => {
-//         const stateKey = new TextEncoder().encode("test-value");
-//         const counter = countSpec.stateFor(subject);
-//         // Optionally use sink here if needed
-//         sink.collect(subject, new TextEncoder().encode("value-state-processed"));
-//       }
-//     });
-//   });
+  // Create the request with initial state
+  const request = create(pb.ProcessEventBatchRequestSchema, {
+    events: [
+      create(pb.EventSchema, {
+        event: {
+          case: 'keyedEvent',
+          value: create(pb.KeyedEventSchema, {
+            key: new TextEncoder().encode("test-key"),
+            timestamp: timestampFromDate(now),
+            value: new TextEncoder().encode("test-input")
+          })
+        }
+      })
+    ],
+    keyStates: [
+      create(pb.KeyStateSchema, {
+        key: new TextEncoder().encode("test-key"),
+        stateEntryNamespaces: [
+          create(pb.StateEntryNamespaceSchema, {
+            namespace: "value-state",
+            entries: [
+              create(pb.StateEntrySchema, {
+                value: codec.encode(42)
+              })
+            ]
+          })
+        ]
+      })
+    ],
+    watermark: timestampFromDate(now)
+  });
 
-//   const request = create(pb.ProcessEventBatchRequestSchema, {
-//     events: [
-//       {
-//         event: {
-//           case: 'keyedEvent',
-//           value: create(pb.KeyedEventSchema, {
-//             key: new TextEncoder().encode("test-key"),
-//             timestamp: timestampFromDate(now),
-//             value: new TextEncoder().encode("test-input"),
-//           })
-//         }
-//       }
-//     ],
-//     keyStates: [
-//       {
-//         key: new TextEncoder().encode("test-key"),
-//         stateEntryNamespaces: [
-//           {
-//             namespace: "test-value",
-//             entries: [
-//               {
-//                 value: new Uint8Array([42]), // Initial value
-//               }
-//             ]
-//           }
-//         ]
-//       }
-//     ],
-//     watermark: timestampFromDate(now)
-//   });
+  const response = await client.processEventBatch(request);
 
-//   const response = await client.processEventBatch(request);
-
-//   expect(response.keyResults.length).toBe(1);
-//   const keyResult = response.keyResults[0];
-//   expect(Buffer.from(keyResult.key).toString()).toBe("test-key");
-//   expect(keyResult.stateMutationNamespaces.length).toBe(1);
-
-//   const namespace = keyResult.stateMutationNamespaces[0];
-//   expect(namespace.namespace).toBe("test-value");
-//   expect(namespace.mutations.length).toBe(1);
-//   expect(namespace.mutations[0].mutation.case).toBe("delete");
-
-//   if (namespace.mutations[0].mutation.case === "delete") {
-//     expect(Buffer.from(namespace.mutations[0].mutation.value.key).toString()).toBe("test-value");
-//   }
-
-//   // Verify sink request
-//   expect(response.sinkRequests.length).toBe(1);
-//   expect(response.sinkRequests[0].id).toBe("test-sink");
-//   expect(Buffer.from(response.sinkRequests[0].value).toString()).toBe("value-state-processed");
-// });
+  // Use compact assertion for key results
+  expect(response.keyResults).toEqual([
+    create(pb.KeyResultSchema, {
+      key: new TextEncoder().encode("test-key"),
+      stateMutationNamespaces: [{
+        namespace: "value-state",
+        mutations: [{
+          mutation: {
+            case: "delete",
+            value: create(pb.DeleteMutationSchema, {
+              key: new TextEncoder().encode("value-state")
+            })
+          }
+        }]
+      }]
+    })
+  ]);
+});
 
 // test('Increment Value State', async () => {
 //   const now = new Date();

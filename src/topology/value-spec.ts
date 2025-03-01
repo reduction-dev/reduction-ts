@@ -22,6 +22,7 @@ export class ValueSpec<T> {
 
 		const state = new ValueState<T>(this.id, this.codec, this.defaultValue, subject.context.getStateEntries(this.id));
 		subject.context.putState(this.id, state);
+		subject.context.registerStateUse(this.id, state);
 		return state;
 	}
 }
