@@ -334,67 +334,64 @@ test('Drop Value State', async () => {
   ]);
 });
 
-// test('Increment Value State', async () => {
-//   const now = new Date();
+test('Increment Value State', async () => {
+  const codec = new UInt64Codec();
+  
+  const client = await setupTestServer((op, sink) => {
+    const spec = new topology.ValueSpec(op, 'counter-state', codec, 0);
+    return new TestHandler({
+      onEvent: (subject, event) => {
+        const counter = spec.stateFor(subject);
+        counter.setValue(counter.value + 1);
+      }
+    });
+  });
 
-//   // Setup server and client with sink parameter
-//   const client = await setupTestServer((op, sink) => {
-//     return new TestHandler({
-//       onEvent: (subject, event) => {
-//         const stateKey = new TextEncoder().encode("counter-state");
-//         const counter = subject.state.get('counter-state', stateKey)?.at(0) || 0;
-//         subject.putState('counter-state', stateKey, new Uint8Array([counter + 1]));
-//         sink.collect(subject, new TextEncoder().encode(`counter-incremented-to-${counter + 1}`));
-//       }
-//     });
-//   });
+  // Create the request with two events for the same key
+  const request = create(pb.ProcessEventBatchRequestSchema, {
+    events: [
+      create(pb.EventSchema, {
+        event: {
+          case: 'keyedEvent',
+          value: create(pb.KeyedEventSchema, {
+            key: Buffer.from("test-key"),
+            timestamp: timestampFromDate(now)
+          })
+        }
+      }),
+      create(pb.EventSchema, {
+        event: {
+          case: 'keyedEvent',
+          value: create(pb.KeyedEventSchema, {
+            key: Buffer.from("test-key"),
+            timestamp: timestampFromDate(now)
+          })
+        }
+      })
+    ],
+    watermark: timestampFromDate(now)
+  });
 
-//   const request = create(pb.ProcessEventBatchRequestSchema, {
-//     events: [
-//       {
-//         event: {
-//           case: 'keyedEvent',
-//           value: create(pb.KeyedEventSchema, {
-//             key: new TextEncoder().encode("test-key"),
-//           })
-//         }
-//       },
-//       {
-//         event: {
-//           case: 'keyedEvent',
-//           value: create(pb.KeyedEventSchema, {
-//             key: new TextEncoder().encode("test-key"),
-//           })
-//         }
-//       }
-//     ],
-//     watermark: timestampFromDate(now)
-//   });
+  const response = await client.processEventBatch(request);
 
-//   const response = await client.processEventBatch(request);
-
-//   expect(response.keyResults.length).toBe(1);
-//   const keyResult = response.keyResults[0];
-//   expect(Buffer.from(keyResult.key).toString()).toBe("test-key");
-//   expect(keyResult.stateMutationNamespaces.length).toBe(1);
-
-//   const namespace = keyResult.stateMutationNamespaces[0];
-//   expect(namespace.namespace).toBe("counter-state");
-//   expect(namespace.mutations.length).toBe(1);
-//   expect(namespace.mutations[0].mutation.case).toBe("put");
-
-//   if (namespace.mutations[0].mutation.case === "put") {
-//     expect(Buffer.from(namespace.mutations[0].mutation.value.key).toString()).toBe("counter-state");
-//     expect(namespace.mutations[0].mutation.value.value[0]).toBe(2);
-//   }
-
-//   // Verify the sink requests
-//   expect(response.sinkRequests.length).toBe(2);
-//   expect(response.sinkRequests[0].id).toBe("test-sink");
-//   expect(Buffer.from(response.sinkRequests[0].value).toString()).toBe("counter-incremented-to-1");
-//   expect(response.sinkRequests[1].id).toBe("test-sink");
-//   expect(Buffer.from(response.sinkRequests[1].value).toString()).toBe("counter-incremented-to-2");
-// });
+  expect(response.keyResults).toEqual([
+    create(pb.KeyResultSchema, {
+      key: new TextEncoder().encode("test-key"),
+      stateMutationNamespaces: [{
+        namespace: "counter-state",
+        mutations: [{
+          mutation: {
+            case: "put",
+            value: {
+              key: new TextEncoder().encode("counter-state"),
+              value: codec.encode(2)
+            }
+          }
+        }]
+      }]
+    })
+  ]);
+});
 
 // Test handler implementation for tests
 class TestHandler implements OperatorHandler {
