@@ -31,4 +31,4 @@ export interface OperatorHandler {
   onTimerExpired(subject: Subject, timer: Date): void | Promise<void>;
 }
 
-export type KeyEventFunc = (event: Uint8Array) => KeyedEvent[] | Promise<KeyedEvent[]>;
+export type KeyEventFunc = (event: Uint8Array) => KeyedEvent[];

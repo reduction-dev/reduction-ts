@@ -14,8 +14,8 @@ export class SynthesizedHandler {
     this.operatorHandler = operatorHandler;
   }
 
-  async KeyEvent(record: Uint8Array): Promise<KeyedEvent[]> {
-    return await this.keyEvent(record);
+  KeyEvent(record: Uint8Array): KeyedEvent[] {
+    return this.keyEvent(record);
   }
 
   async ProcessEventBatch(request: pb.ProcessEventBatchRequest): Promise<pb.ProcessEventBatchResponse> {

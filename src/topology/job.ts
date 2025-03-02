@@ -1,5 +1,6 @@
 import { Server } from '../server/server';
 import { JobContext, type JobContextParams } from './job-context';
+import { TestRun } from './test-run';
 
 export type JobParams = JobContextParams;
 
@@ -34,5 +35,12 @@ export class Job {
       default:
         throw new Error(`Unknown command: ${command}`);
     }
+  }
+
+  /**
+   * Perform a test run against the `reduction testrun` command.
+   */
+  testRun(): TestRun {
+    return new TestRun(this.context.synthesize().handler);
   }
 }
