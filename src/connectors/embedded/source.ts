@@ -8,7 +8,7 @@ export interface EmbeddedSourceParams {
   keyEvent: KeyEventFunc;
   splitCount?: number;
   batchSize?: number;
-  generator?: number;
+  generator?: "sequence";
 }
 
 export class Source {
@@ -16,14 +16,16 @@ export class Source {
   private operators: Operator[];
   private splitCount: number;
   private batchSize: number;
-  private generator: number;
+  private generator: pb.EmbeddedSource_GeneratorType;
 
   constructor(job: Job, id: string, params: EmbeddedSourceParams) {
     this.id = id;
     this.operators = [];
     this.splitCount = params.splitCount || 1;
     this.batchSize = params.batchSize || 10;
-    this.generator = params.generator || 1;
+    this.generator = params.generator === "sequence" 
+      ? pb.EmbeddedSource_GeneratorType.SEQUENCE 
+      : pb.EmbeddedSource_GeneratorType.UNSPECIFIED;
 
     job.context.registerSource(() => ({
       keyEvent: params.keyEvent,
