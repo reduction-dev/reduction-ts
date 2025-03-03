@@ -1,6 +1,6 @@
 import { create } from "@bufbuild/protobuf";
-import * as pb from "@rxn/proto/handlerpb/handler_pb";
-import { expect, test } from "bun:test";
+import * as pb from "../proto/handlerpb/handler_pb";
+import { test, expect } from "bun:test";
 import { BoolCodec as BooleanCodec, FloatCodec, Int32Codec, StringCodec } from "./scalar-codecs";
 import type { ValueCodec } from "./value-codec";
 import { ValueState } from "./value-state";

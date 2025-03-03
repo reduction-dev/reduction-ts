@@ -1,7 +1,6 @@
-import type { ValueCodec } from "@rxn/state/value-codec";
 import type { Operator } from "./operator";
-import { ValueState } from "@rxn/state/value-state";
-import type { Subject } from "@rxn/handler/subject";
+import { ValueState, type ValueCodec } from "../state";
+import type { Subject } from "../handler/subject";
 
 export class ValueSpec<T> {
 	private codec: ValueCodec<NonNullable<T>>;

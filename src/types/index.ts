@@ -1,4 +1,4 @@
-import type { Subject } from "@rxn/handler/subject";
+import type { Subject } from "../handler/subject";
 
 /**
  * An event with a partitioning key and timestamp

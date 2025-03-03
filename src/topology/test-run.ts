@@ -1,9 +1,9 @@
 import { create, toBinary } from "@bufbuild/protobuf";
-import { timestampFromDate } from "@bufbuild/protobuf/wkt";
-import { PipeHandler } from "@rxn/handler/pipe-handler";
-import type { SynthesizedHandler } from "@rxn/handler/synthesized-handler";
-import * as pb from "@rxn/proto/testrunpb/testrun_pb";
+import { PipeHandler } from "../handler/pipe-handler";
+import type { SynthesizedHandler } from "../handler/synthesized-handler";
+import * as pb from "../proto/testrunpb/testrun_pb";
 import { spawn } from "node:child_process";
+import { timestampFromDate } from "@bufbuild/protobuf/wkt";
 
 export class TestRun {
   private handler: SynthesizedHandler

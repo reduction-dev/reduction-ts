@@ -1,4 +1,4 @@
-import * as pb from "@rxn/proto/handlerpb/handler_pb";
+import * as pb from "../proto/handlerpb/handler_pb";
 import { create } from "@bufbuild/protobuf";
 import type { MapCodec } from "./map-codec";
 

@@ -1,8 +1,7 @@
-import { create } from "@bufbuild/protobuf";
-import type { Job } from "@rxn/topology";
-import * as pb from "@rxn/proto/jobconfigpb/jobconfig_pb";
-import { BaseSink } from "@rxn/topology/sink";
-import type { Subject } from "@rxn/handler/subject";
+import { create } from '@bufbuild/protobuf';
+import { type Job, BaseSink } from '../../topology';
+import * as pb from '../../proto/jobconfigpb/jobconfig_pb';
+import type { Subject } from '../../handler/subject';
 
 export class Sink extends BaseSink {
   private id: string;

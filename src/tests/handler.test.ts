@@ -2,15 +2,15 @@ import { create } from "@bufbuild/protobuf";
 import { timestampFromDate } from "@bufbuild/protobuf/wkt";
 import { type Client, createClient } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-node";
-import * as stdio from "@rxn/connectors/stdio";
-import type { Subject } from "@rxn/handler/subject";
-import * as topology from "@rxn/topology";
 import { expect, test } from "bun:test";
+import * as stdio from "../connectors/stdio";
+import type { Subject } from "../handler/subject";
 import * as pb from "../proto/handlerpb/handler_pb";
 import { Server } from "../server/server";
+import { UInt64Codec } from "../state/scalar-codecs";
+import * as topology from "../topology";
 import { Job } from "../topology/job";
 import type { KeyedEvent, OperatorHandler } from "../types";
-import { UInt64Codec } from "../state/scalar-codecs";
 
 const now = new Date();
 

@@ -1,4 +1,4 @@
-import type { StateEntry } from '@rxn/proto/handlerpb/handler_pb';
+import type { StateEntry } from '../proto/handlerpb/handler_pb';
 import { SubjectContext } from './subject-context';
 
 // A map of state IDs to state entries for one key.

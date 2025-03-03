@@ -1,6 +1,6 @@
-import { fromBinary, toBinary } from "@bufbuild/protobuf";
-import * as handlerpb from "@rxn/proto/handlerpb/handler_pb";
-import * as pb from "@rxn/proto/testrunpb/testrun_pb";
+import { toBinary, fromBinary } from "@bufbuild/protobuf";
+import * as handlerpb from "../proto/handlerpb/handler_pb";
+import * as pb from "../proto/testrunpb/testrun_pb";
 import assert from "node:assert";
 import { Readable, Transform, type TransformCallback, Writable } from "node:stream";
 import type { SynthesizedHandler } from "./synthesized-handler";

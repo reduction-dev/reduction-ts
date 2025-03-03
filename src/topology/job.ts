@@ -1,6 +1,7 @@
 import { Server } from '../server/server';
 import { JobContext, type JobContextParams } from './job-context';
 import { TestRun } from './test-run';
+import { Command, program } from 'commander';
 
 export type JobParams = JobContextParams;
 
@@ -18,29 +19,32 @@ export class Job {
   }
 
   /**
-   * Run the job with the specified command
-   */
-  async run(command: string): Promise<void> {
-    const { handler, config } = this.context.synthesize();
-    switch (command) {
-      case 'config':
-        // Convert to JSON and output to stdout
-        const jsonConfig = JSON.stringify(config, null, 2);
-        console.log(jsonConfig);
-        break;
-      case 'serve':
-        this.server = new Server(handler, this.port);
-        await this.server.start();
-        break;
-      default:
-        throw new Error(`Unknown command: ${command}`);
-    }
-  }
-
-  /**
    * Perform a test run against the `reduction testrun` command.
    */
   testRun(): TestRun {
     return new TestRun(this.context.synthesize().handler);
+  }
+
+  run(): void {
+    const { handler, config } = this.context.synthesize();
+
+    program
+      .command('config')
+      .description('Output the job configuration as JSON')
+      .action(() => {
+        process.stdout.write(JSON.stringify(config, null, 2));
+      });
+
+    program
+      .command('start')
+      .description('Start the handler server')
+      .option('-p, --port <port>', 'The port to listen on', '8080')
+      .action(async (options) => {
+        this.port = parseInt(options.port);
+        this.server = new Server(handler, this.port);
+        await this.server.start();
+      });
+
+    program.parse(process.argv);
   }
 }

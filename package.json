@@ -1,7 +1,29 @@
 {
   "name": "reduction-ts",
-  "module": "index.ts",
+  "module": "dist/index.js",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.js"
+    },
+    "./topology": {
+      "import": "./dist/topology/index.js",
+      "require": "./dist/topology/index.js",
+      "types": "./dist/topology/index.d.js"
+    }, 
+    "./connectors/*": {
+      "import": "./dist/connectors/*/index.js",
+      "require": "./dist/connectors/*/index.js",
+      "types": "./dist/connectors/*/index.d.js"
+    },
+    "./state": {
+      "import": "./dist/state/index.js",
+      "require": "./dist/state/index.js",
+      "types": "./dist/state/index.d.js"
+    }
+  },
   "bin": {
     "reduction-ts": "./src/cli.ts"
   },
@@ -9,8 +31,7 @@
     "start": "bun index.ts",
     "serve": "bun index.ts serve",
     "config": "bun index.ts config",
-    "build": "bun build ./index.ts --outdir ./dist --target node",
-    "typecheck": "bun run tsc --noEmit"
+    "build": "tsc --project tsconfig.json"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.2.3",

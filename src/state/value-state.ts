@@ -1,6 +1,6 @@
 import type { ValueCodec } from "./value-codec";
-import * as pb from "@rxn/proto/handlerpb/handler_pb";
 import { create } from "@bufbuild/protobuf";
+import * as pb from "../proto/handlerpb/handler_pb";
 
 enum ValueStatus {
   Initial,

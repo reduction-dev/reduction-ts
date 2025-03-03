@@ -1,8 +1,7 @@
 import { create } from '@bufbuild/protobuf';
 import * as pb from '../../proto/jobconfigpb/jobconfig_pb';
-import type { Operator } from '../../topology/operator';
+import type { Operator, Job } from '../../topology';
 import type { KeyEventFunc } from '../../types';
-import type { Job } from '@rxn/topology';
 
 export interface KinesisSourceParams {
   keyEvent: KeyEventFunc;

@@ -1,6 +1,6 @@
 import type { ConnectRouter } from "@connectrpc/connect";
 import { connectNodeAdapter } from "@connectrpc/connect-node";
-import { createServer, Server as HttpServer } from 'node:http';
+import { createServer, Server as HttpServer, IncomingMessage, ServerResponse } from 'node:http';
 import { SynthesizedHandler } from '../handler/synthesized-handler';
 import * as handler_pb from '../proto/handlerpb/handler_pb';
 import { Handler } from '../proto/handlerpb/handler_pb';
@@ -32,9 +32,17 @@ export class Server {
   async start(): Promise<number> {
     const routes = this.createRouter();
     
-    this.httpServer = createServer(
-      connectNodeAdapter({ routes })
-    );
+    this.httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
+      // Handle health check
+      if (req.url === '/health' && req.method === 'GET') {
+        res.writeHead(200);
+        res.end();
+        return;
+      }
+      
+      // Otherwise, pass to Connect handler
+      connectNodeAdapter({ routes })(req, res);
+    });
 
     return new Promise((resolve, reject) => {
       this.httpServer?.listen(this.port, () => {
