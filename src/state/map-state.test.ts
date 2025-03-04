@@ -11,7 +11,7 @@ test("MapState name test", () => {
 
 test("MapState put mutation", () => {
   const state = new MapState("id", codec, []);
-  state.put("k1", "v1");
+  state.set("k1", "v1");
 
   expect(state.mutations()).toEqual([
     create(pb.StateMutationSchema, {
@@ -65,8 +65,8 @@ test("MapState entries test", () => {
   ];
 
   const state = new MapState("id", codec, initialEntries);
-  state.put("added", "added");
-  state.put("modified", "modified");
+  state.set("added", "added");
+  state.set("modified", "modified");
   state.delete("deleted");
 
   const entries = Object.fromEntries(state.entries());
@@ -83,8 +83,8 @@ test("MapState size operations", () => {
   expect(state.size).toBe(0);
 
   // Test after adding items
-  state.put("k1", "v1");
-  state.put("k2", "v2");
+  state.set("k1", "v1");
+  state.set("k2", "v2");
   expect(state.size).toBe(2);
 
   // Test loaded state with initial entries
@@ -106,8 +106,8 @@ test("MapState size operations", () => {
 
   // Test updating existing items doesn't change size
   const updateState = new MapState("test", codec, []);
-  updateState.put("k1", "v1");
-  updateState.put("k1", "v2"); // update same key
+  updateState.set("k1", "v1");
+  updateState.set("k1", "v2"); // update same key
   expect(updateState.size).toBe(1);
 
   // Test delete then add same key
@@ -118,7 +118,7 @@ test("MapState size operations", () => {
     })
   ]);
   readdState.delete("k1");
-  readdState.put("k1", "v2");
+  readdState.set("k1", "v2");
   expect(readdState.size).toBe(1);
 });
 
@@ -130,13 +130,13 @@ const codec: MapCodec<string, string> = {
     return Buffer.from(key);
   },
   decodeKey(data: Uint8Array): string {
-    return Buffer.from(data).toString();
+    return Buffer.from(data).toString('utf8');
   },
   encodeValue(value: string): Uint8Array {
     return Buffer.from(value);
   },
   decodeValue(data: Uint8Array): string {
-    return Buffer.from(data).toString();
+    return Buffer.from(data).toString('utf-8');
   }
 };
 
@@ -165,7 +165,7 @@ describe("MapState entries() benchmark", () => {
     const updateCount = Math.floor(size * updatePercentage);
     for (let i = 0; i < updateCount; i++) {
       const key = `key-${i}`; // Update from the start
-      state.put(key, `updated-${i}`);
+      state.set(key, `updated-${i}`);
     }
     
     // Apply deletes
@@ -180,7 +180,7 @@ describe("MapState entries() benchmark", () => {
     const newCount = Math.floor(size * updatePercentage); // Same number as updates
     for (let i = 0; i < newCount; i++) {
       const key = `new-key-${i}`;
-      state.put(key, `new-value-${i}`);
+      state.set(key, `new-value-${i}`);
     }
     
     return state;

@@ -2,7 +2,7 @@ import type { ValueCodec } from "./value-codec";
 import { toBinary, create, protoInt64, fromBinary } from "@bufbuild/protobuf";
 import * as wkt from "@bufbuild/protobuf/wkt";
 
-export class Int32Codec implements ValueCodec<number> {
+export class Int32ValueCodec implements ValueCodec<number> {
   encode(value: number): Uint8Array {
     return toBinary(wkt.Int32ValueSchema, create(wkt.Int32ValueSchema, { value }));
   }
@@ -12,7 +12,7 @@ export class Int32Codec implements ValueCodec<number> {
   }
 }
 
-export class Int64Codec implements ValueCodec<number> {
+export class Int64ValueCodec implements ValueCodec<number> {
   encode(value: number): Uint8Array {
     return toBinary(wkt.Int64ValueSchema, create(wkt.Int64ValueSchema, { 
       value: protoInt64.parse(value.toString()) 
@@ -25,7 +25,7 @@ export class Int64Codec implements ValueCodec<number> {
   }
 }
 
-export class UInt32Codec implements ValueCodec<number> {
+export class Uint32ValueCodec implements ValueCodec<number> {
   encode(value: number): Uint8Array {
     return toBinary(wkt.UInt32ValueSchema, create(wkt.UInt32ValueSchema, { value }));
   }
@@ -35,7 +35,7 @@ export class UInt32Codec implements ValueCodec<number> {
   }
 }
 
-export class UInt64Codec implements ValueCodec<number> {
+export class Uint64ValueCodec implements ValueCodec<number> {
   encode(value: number): Uint8Array {
     return toBinary(wkt.UInt64ValueSchema, create(wkt.UInt64ValueSchema, { 
       value: protoInt64.parse(value.toString()) 
@@ -48,7 +48,7 @@ export class UInt64Codec implements ValueCodec<number> {
   }
 }
 
-export class FloatCodec implements ValueCodec<number> {
+export class FloatValueCodec implements ValueCodec<number> {
   encode(value: number): Uint8Array {
     return toBinary(wkt.FloatValueSchema, create(wkt.FloatValueSchema, { value }));
   }
@@ -58,7 +58,7 @@ export class FloatCodec implements ValueCodec<number> {
   }
 }
 
-export class DoubleCodec implements ValueCodec<number> {
+export class DoubleValueCodec implements ValueCodec<number> {
   encode(value: number): Uint8Array {
     return toBinary(wkt.DoubleValueSchema, create(wkt.DoubleValueSchema, { value }));
   }
@@ -68,7 +68,7 @@ export class DoubleCodec implements ValueCodec<number> {
   }
 }
 
-export class StringCodec implements ValueCodec<string> {
+export class StringValueCodec implements ValueCodec<string> {
   encode(value: string): Uint8Array {
     return toBinary(wkt.StringValueSchema, create(wkt.StringValueSchema, { value }));
   }
@@ -78,7 +78,7 @@ export class StringCodec implements ValueCodec<string> {
   }
 }
 
-export class BoolCodec implements ValueCodec<boolean> {
+export class BooleanValueCodec implements ValueCodec<boolean> {
   encode(value: boolean): Uint8Array {
     return toBinary(wkt.BoolValueSchema, create(wkt.BoolValueSchema, { value }));
   }
@@ -88,7 +88,7 @@ export class BoolCodec implements ValueCodec<boolean> {
   }
 }
 
-export class TimestampCodec implements ValueCodec<Date> {
+export class TimestampValueCodec implements ValueCodec<Date> {
   encode(value: Date): Uint8Array {
     return toBinary(wkt.TimestampSchema, wkt.timestampFromDate(value));
   }

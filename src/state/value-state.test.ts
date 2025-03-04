@@ -1,32 +1,32 @@
 import { create } from "@bufbuild/protobuf";
 import * as pb from "../proto/handlerpb/handler_pb";
 import { test, expect } from "bun:test";
-import { BoolCodec as BooleanCodec, FloatCodec, Int32Codec, StringCodec } from "./scalar-codecs";
+import { BooleanValueCodec, FloatValueCodec, Int32ValueCodec, StringValueCodec } from "./scalar-codecs";
 import type { ValueCodec } from "./value-codec";
 import { ValueState } from "./value-state";
 
 test("ValueState with number", () => {
-  const state = testValueStateRoundTrip("test-number", 42, new Int32Codec, 0);
+  const state = testValueStateRoundTrip("test-number", 42, new Int32ValueCodec, 0);
   expect(state.value).toBe(42);
 });
 
 test("ValueState with string", () => {
-  const state = testValueStateRoundTrip("test-string", "hello world", new StringCodec, "");
+  const state = testValueStateRoundTrip("test-string", "hello world", new StringValueCodec, "");
   expect(state.value).toBe("hello world");
 });
 
 test("ValueState with boolean", () => {
-  const state = testValueStateRoundTrip("test-boolean", true, new BooleanCodec, false);
+  const state = testValueStateRoundTrip("test-boolean", true, new BooleanValueCodec, false);
   expect(state.value).toBe(true);
 });
 
 test("ValueState with decimal number", () => {
-  const state = testValueStateRoundTrip("test-float", 3.14159, new FloatCodec, 0);
+  const state = testValueStateRoundTrip("test-float", 3.14159, new FloatValueCodec, 0);
   expect(state.value).toBeCloseTo(3.14159, 2);
 });
 
 test("ValueState name test", () => {
-  const state = new ValueState("test-name", new Int32Codec, 0, []);
+  const state = new ValueState("test-name", new Int32ValueCodec, 0, []);
   expect(state.name).toBe("test-name");
 });
 
@@ -36,11 +36,11 @@ test("ValueState drop test", () => {
   const entries = [
     create(pb.StateEntrySchema, {
       key: Buffer.from("test-drop"),
-      value: new Int32Codec().encode(initialValue)
+      value: new Int32ValueCodec().encode(initialValue)
     })
   ];
   
-  const state = new ValueState("test-drop", new Int32Codec(), 0, entries);
+  const state = new ValueState("test-drop", new Int32ValueCodec(), 0, entries);
   expect(state.value).toBe(initialValue);
   
   // Drop the value
@@ -64,7 +64,7 @@ test("ValueState drop test", () => {
 
 test("ValueState increment multiple events", () => {
   // Initialize state
-  const state = new ValueState("test-counter", new Int32Codec, 0, []);
+  const state = new ValueState("test-counter", new Int32ValueCodec, 0, []);
   
   // First event - increment from 0 to 1, then from 1 to 2
   state.setValue(state.value + 1);
@@ -78,7 +78,7 @@ test("ValueState increment multiple events", () => {
         case: "put",
         value: {
           key: Buffer.from("test-counter"),
-          value: new Int32Codec().encode(2),
+          value: new Int32ValueCodec().encode(2),
         },
       },
     }),

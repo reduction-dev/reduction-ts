@@ -3,7 +3,7 @@ import { type Job, BaseSink } from '../../topology';
 import * as pb from '../../proto/jobconfigpb/jobconfig_pb';
 import type { Subject } from '../../handler/subject';
 
-export class Sink extends BaseSink {
+export class Sink extends BaseSink<Uint8Array> {
   private id: string;
 
   constructor(job: Job, id: string) {

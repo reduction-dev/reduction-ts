@@ -7,28 +7,27 @@ import type { SynthesizedHandler } from "./synthesized-handler";
 
 export class PipeHandler {
   private rxnHandler: SynthesizedHandler;
-  private stdin: Readable;
-  private stdout: Writable;
+  private output: Writable;
+  private input: Readable;
   private messageReader: LengthPrefixedMessageReader;
   private messageWriter: LengthPrefixedMessageWriter;
   
-  constructor(handler: SynthesizedHandler, stdin: Readable, stdout: Writable) {
+  constructor(handler: SynthesizedHandler, input: Readable, output: Writable) {
     this.rxnHandler = handler;
-    this.stdin = stdin;
-    this.stdout = stdout;
+    this.input = input;
+    this.output = output;
     
     // Create the message transforms
     this.messageReader = new LengthPrefixedMessageReader();
     this.messageWriter = new LengthPrefixedMessageWriter();
     
     // Connect the writer transform to stdout
-    this.messageWriter.pipe(this.stdout);
+    this.messageWriter.pipe(this.output);
   }
 
   public async processMessages(): Promise<void> {
     return new Promise((resolve, reject) => {
-      // Pipe stdin through our message reader
-      this.stdin
+      this.input
         .pipe(this.messageReader)
         .on('data', async (data: Buffer) => {
           try {

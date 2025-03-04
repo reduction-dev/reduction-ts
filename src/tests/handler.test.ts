@@ -7,7 +7,7 @@ import * as stdio from "../connectors/stdio";
 import type { Subject } from "../handler/subject";
 import * as pb from "../proto/handlerpb/handler_pb";
 import { Server } from "../server/server";
-import { UInt64Codec } from "../state/scalar-codecs";
+import { Uint64ValueCodec } from "../state/scalar-codecs";
 import * as topology from "../topology";
 import { Job } from "../topology/job";
 import type { KeyedEvent, OperatorHandler } from "../types";
@@ -111,7 +111,7 @@ test("Process State Mutations", async () => {
     return new TestHandler({
       onEvent: (subject, event) => {
         const count = spec.stateFor(subject);
-        count.put("test-key", 42);
+        count.set("test-key", 42);
       },
     });
   });
@@ -186,7 +186,7 @@ test("Process Multiple Events With State", async () => {
       onEvent: (subject, event) => {
         const counts = spec.stateFor(subject);
         const currentValue = counts.get("counter") ?? 0;
-        counts.put("counter", currentValue + 1);
+        counts.set("counter", currentValue + 1);
       },
     });
   });
@@ -294,7 +294,7 @@ test("Process Multiple Events With State", async () => {
 });
 
 test("Drop Value State", async () => {
-  const codec = new UInt64Codec();
+  const codec = new Uint64ValueCodec();
 
   // Setup server with ValueSpec
   const client = await setupTestServer((op, sink) => {
@@ -365,7 +365,7 @@ test("Drop Value State", async () => {
 });
 
 test("Increment Value State", async () => {
-  const codec = new UInt64Codec();
+  const codec = new Uint64ValueCodec();
 
   const client = await setupTestServer((op, sink) => {
     const spec = new topology.ValueSpec(op, "counter-state", codec, 0);
@@ -492,7 +492,7 @@ class StringUintMapCodec {
   }
 
   decodeKey(data: Uint8Array): string {
-    return Buffer.from(data).toString();
+    return Buffer.from(data).toString('utf8');
   }
 
   encodeValue(value: number): Uint8Array {

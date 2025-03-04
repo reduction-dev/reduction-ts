@@ -6,7 +6,7 @@ export interface HTTPAPISinkParams {
   addr?: string;
 }
 
-export class Sink extends BaseSink {
+export class Sink extends BaseSink<Uint8Array> {
   constructor(job: Job, id: string, params: HTTPAPISinkParams = {}) {
     super();
     job.context.registerSink(() => ({

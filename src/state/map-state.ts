@@ -20,7 +20,7 @@ export class MapState<K, V> {
     return this.#state.get(mapKey);
   }
 
-  public put(key: K, value: V): void {
+  public set(key: K, value: V): void {
     const mapKey = this.#getMapKey(key);
     this.#state.set(mapKey, value);
     this.#dirtyKeys.add(mapKey);

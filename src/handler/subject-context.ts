@@ -14,10 +14,11 @@ interface MutatingState {
  * Implementation of the Subject interface for handling state and sinks
  */
 export class SubjectContext {
+  public readonly key: Uint8Array;
+
   private usedStates = new Map<string, MutatingState>();
   private sinkRequests: pb.SinkRequest[] = [];
   private timers: Timestamp[] = [];
-  private readonly key: Uint8Array;
   private timestamp: Date;
   private watermark: Date;
   private stateCache: Map<string, unknown> = new Map();

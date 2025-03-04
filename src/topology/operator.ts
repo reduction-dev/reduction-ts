@@ -1,6 +1,6 @@
 import type { OperatorHandler } from "../types";
 import type { Job } from "./job";
-import type { BaseSink } from "./sink";
+import type { BaseSink } from "./base-sink";
 
 interface OperatorParams {
   parallelism: number;
@@ -13,7 +13,7 @@ interface OperatorParams {
 export class Operator {
   private id: string;
   private params: OperatorParams;
-  private sinks: BaseSink[];
+  private sinks: BaseSink<unknown>[];
 
   constructor(job: Job, id: string, params: OperatorParams) {
     this.id = id;
@@ -24,7 +24,7 @@ export class Operator {
     }));
   }
 
-  connect(sink: BaseSink) {
+  connect(sink: BaseSink<unknown>) {
     this.sinks.push(sink);
   }
 }

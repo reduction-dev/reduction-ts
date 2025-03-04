@@ -20,4 +20,11 @@ export class Subject {
   setTimer(timestamp: Date): void {
     this.context.setTimer(timestamp);
   }
+
+  /**
+   * Returns the key of the current subject
+   */
+  get key(): Uint8Array {
+    return this.context.key;
+  }
 }
