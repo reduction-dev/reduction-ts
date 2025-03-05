@@ -4,9 +4,10 @@ import * as stdio from '../connectors/stdio';
 import { fromJson } from '@bufbuild/protobuf';
 import { create } from '@bufbuild/protobuf';
 import * as config_pb from '../proto/jobconfigpb/jobconfig_pb';
+import { currentInstant } from '../instant';
 
 test("synthesize job config", () => {
-  const job = new topology.Job({ 
+  const job = new topology.Job({
     workerCount: 1,
     keyGroupCount: 2,
     workingStorageLocation: "/tmp/work",
@@ -18,7 +19,7 @@ test("synthesize job config", () => {
       [{
         key: Uint8Array.from("test-key"),
         value: event,
-        timestamp: new Date(),
+        timestamp: currentInstant(),
       }]
     )
   });

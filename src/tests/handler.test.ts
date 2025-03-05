@@ -1,5 +1,4 @@
 import { create } from "@bufbuild/protobuf";
-import { timestampFromDate } from "@bufbuild/protobuf/wkt";
 import { type Client, createClient } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-node";
 import { expect, test } from "bun:test";
@@ -12,8 +11,9 @@ import * as topology from "../topology";
 import { Job } from "../topology/job";
 import type { KeyedEvent, OperatorHandler } from "../types";
 import { MapCodec } from "../state";
+import { Instant, instantToProto } from "../instant";
 
-const now = new Date();
+const now = Instant.from("2023-01-01T00:00:00Z");
 
 test("Process Keyed Event", async () => {
   // Setup server and client
@@ -34,13 +34,13 @@ test("Process Keyed Event", async () => {
           case: "keyedEvent",
           value: {
             key: new TextEncoder().encode("test-key"),
-            timestamp: timestampFromDate(now),
+            timestamp: instantToProto(now),
             value: new TextEncoder().encode("test-input"),
           },
         },
       },
     ],
-    watermark: timestampFromDate(now),
+    watermark: instantToProto(now),
   });
 
   const response = await client.processEventBatch(request);
@@ -48,7 +48,7 @@ test("Process Keyed Event", async () => {
   expect(response.keyResults).toEqual([
     expect.objectContaining({
       key: new TextEncoder().encode("test-key"),
-      newTimers: [timestampFromDate(now)],
+      newTimers: [instantToProto(now)],
     }),
   ]);
 
@@ -78,12 +78,12 @@ test("Process Timer Expired", async () => {
           case: "timerExpired",
           value: {
             key: new TextEncoder().encode("test-key"),
-            timestamp: timestampFromDate(now),
+            timestamp: instantToProto(now),
           },
         },
       },
     ],
-    watermark: timestampFromDate(now),
+    watermark: instantToProto(now),
   });
 
   // Call the server
@@ -116,7 +116,7 @@ test("Process State Mutations", async () => {
     });
   });
 
-  const now = new Date();
+  const testNow = Instant.from("2023-01-01T00:00:00Z");
 
   // Create the request with an initial state
   const request = create(pb.ProcessEventBatchRequestSchema, {
@@ -126,7 +126,7 @@ test("Process State Mutations", async () => {
           case: "keyedEvent",
           value: {
             key: new TextEncoder().encode("test-key"),
-            timestamp: timestampFromDate(now),
+            timestamp: instantToProto(testNow),
             value: new TextEncoder().encode("test-value"),
           },
         },
@@ -148,7 +148,7 @@ test("Process State Mutations", async () => {
         ],
       },
     ],
-    watermark: timestampFromDate(now),
+    watermark: instantToProto(testNow),
   });
 
   // Call the server
@@ -196,7 +196,7 @@ test("Process Multiple Events With State", async () => {
           case: "keyedEvent",
           value: {
             key: Buffer.from("key-1"),
-            timestamp: timestampFromDate(now),
+            timestamp: instantToProto(now),
           },
         },
       },
@@ -205,7 +205,7 @@ test("Process Multiple Events With State", async () => {
           case: "keyedEvent",
           value: {
             key: Buffer.from("key-2"),
-            timestamp: timestampFromDate(now),
+            timestamp: instantToProto(now),
           },
         },
       },
@@ -240,7 +240,7 @@ test("Process Multiple Events With State", async () => {
         ],
       },
     ],
-    watermark: timestampFromDate(now),
+    watermark: instantToProto(now),
   });
 
   const response = await client.processEventBatch(request);
@@ -311,7 +311,7 @@ test("Drop Value State", async () => {
           case: "keyedEvent",
           value: {
             key: new TextEncoder().encode("test-key"),
-            timestamp: timestampFromDate(now),
+            timestamp: instantToProto(now),
             value: new TextEncoder().encode("test-input"),
           },
         },
@@ -332,7 +332,7 @@ test("Drop Value State", async () => {
         ],
       },
     ],
-    watermark: timestampFromDate(now),
+    watermark: instantToProto(now),
   });
 
   const response = await client.processEventBatch(request);
@@ -379,7 +379,7 @@ test("Increment Value State", async () => {
           case: "keyedEvent",
           value: {
             key: Buffer.from("test-key"),
-            timestamp: timestampFromDate(now),
+            timestamp: instantToProto(now),
           },
         },
       },
@@ -388,12 +388,12 @@ test("Increment Value State", async () => {
           case: "keyedEvent",
           value: {
             key: Buffer.from("test-key"),
-            timestamp: timestampFromDate(now),
+            timestamp: instantToProto(now),
           },
         },
       },
     ],
-    watermark: timestampFromDate(now),
+    watermark: instantToProto(now),
   });
 
   const response = await client.processEventBatch(request);
@@ -424,12 +424,12 @@ test("Increment Value State", async () => {
 // Test handler implementation for tests
 class TestHandler implements OperatorHandler {
   onEventFn?: (subject: Subject, event: KeyedEvent) => void;
-  onTimerExpiredFn?: (subject: Subject, timer: Date) => void;
+  onTimerExpiredFn?: (subject: Subject, timer: Instant) => void;
 
   constructor(
     options: {
       onEvent?: (subject: Subject, event: KeyedEvent) => void;
-      onTimerExpired?: (subject: Subject, timer: Date) => void;
+      onTimerExpired?: (subject: Subject, timer: Instant) => void;
     } = {}
   ) {
     this.onEventFn = options.onEvent;
@@ -440,7 +440,7 @@ class TestHandler implements OperatorHandler {
     this.onEventFn?.(subject, event);
   }
 
-  onTimerExpired(subject: Subject, timer: Date): void {
+  onTimerExpired(subject: Subject, timer: Instant): void {
     this.onTimerExpiredFn?.(subject, timer);
   }
 }

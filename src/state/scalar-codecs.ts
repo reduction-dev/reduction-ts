@@ -1,6 +1,7 @@
 import { ValueCodec } from "./value-codec";
 import { toBinary, create, protoInt64, fromBinary } from "@bufbuild/protobuf";
 import * as wkt from "@bufbuild/protobuf/wkt";
+import { Instant, instantToProto, instantFromProto } from "../instant";
 
 export const int32ValueCodec = new ValueCodec<number>({
   encode(value: number) {
@@ -80,11 +81,11 @@ export const booleanValueCodec = new ValueCodec<boolean>({
   }
 });
 
-export const timestampValueCodec = new ValueCodec<Date>({
-  encode(value: Date) {
-    return toBinary(wkt.TimestampSchema, wkt.timestampFromDate(value));
+export const timestampValueCodec = new ValueCodec<Instant>({
+  encode(value: Instant) {
+    return toBinary(wkt.TimestampSchema, instantToProto(value));
   },
   decode(value: Uint8Array) {
-    return wkt.timestampDate(fromBinary(wkt.TimestampSchema, value));
+    return instantFromProto(fromBinary(wkt.TimestampSchema, value));
   }
 });

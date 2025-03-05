@@ -1,6 +1,7 @@
 import * as pb from '../proto/handlerpb/handler_pb';
 import { create } from '@bufbuild/protobuf';
-import { type Timestamp, timestampFromDate } from "@bufbuild/protobuf/wkt";
+import { type Timestamp } from "@bufbuild/protobuf/wkt";
+import { Instant, instantToProto } from "../instant";
 
 // A map of state IDs to state entries for one key.
 type KeyState = Map<string, pb.StateEntry[]>;
@@ -15,16 +16,16 @@ interface MutatingState {
  */
 export class SubjectContext {
   public readonly key: Uint8Array;
-  public readonly watermark: Date;
+  public readonly watermark: Instant;
 
   private usedStates = new Map<string, MutatingState>();
   private sinkRequests: pb.SinkRequest[] = [];
   private timers: Timestamp[] = [];
-  private timestamp: Date;
+  private timestamp: Instant;
   private stateCache: Map<string, unknown> = new Map();
   private keyState: KeyState;
 
-  constructor(key: Uint8Array, timestamp: Date, watermark: Date, keyState: KeyState) {
+  constructor(key: Uint8Array, timestamp: Instant, watermark: Instant, keyState: KeyState) {
     this.key = key;
     this.timestamp = timestamp;
     this.watermark = watermark;
@@ -38,7 +39,7 @@ export class SubjectContext {
    * Puts any state type into a cache
    */
   putState(name: string, state: unknown): void {
-    this.stateCache.set(name, state); 
+    this.stateCache.set(name, state);
   }
 
   /**
@@ -59,17 +60,17 @@ export class SubjectContext {
     }));
   }
 
-  setTimer(timestamp: Date): void {
-    this.timers.push(timestampFromDate(timestamp));
+  setTimer(timestamp: Instant): void {
+    this.timers.push(instantToProto(timestamp));
   }
 
-  setTimestamp(timestamp: Date): void {
+  setTimestamp(timestamp: Instant): void {
     this.timestamp = timestamp;
   }
 
   getStateMutationNamespaces(): pb.StateMutationNamespace[] {
     const result: pb.StateMutationNamespace[] = [];
-    
+
     // Collect mutations from all used states
     for (const [stateID, state] of this.usedStates) {
       const mutations = state.mutations();
@@ -80,7 +81,7 @@ export class SubjectContext {
         }));
       }
     }
-    
+
     return result;
   }
 

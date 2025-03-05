@@ -1,5 +1,6 @@
 import type { StateEntry } from '../proto/handlerpb/handler_pb';
 import { SubjectContext } from './subject-context';
+import { Instant } from "../instant";
 
 // A map of state IDs to state entries for one key.
 type KeyState = Map<string, StateEntry[]>;
@@ -9,7 +10,7 @@ type KeyState = Map<string, StateEntry[]>;
  */
 export class Subject {
   public context: SubjectContext
-  constructor(key: Uint8Array, timestamp: Date, watermark: Date, keyState: KeyState) {
+  constructor(key: Uint8Array, timestamp: Instant, watermark: Instant, keyState: KeyState) {
     this.context = new SubjectContext(key, timestamp, watermark, keyState);
   }
 
@@ -17,7 +18,7 @@ export class Subject {
    * Sets a timer that will fire at the given timestamp
    * @param timestamp the time when the timer should fire
    */
-  setTimer(timestamp: Date): void {
+  setTimer(timestamp: Instant): void {
     this.context.setTimer(timestamp);
   }
 
@@ -28,7 +29,7 @@ export class Subject {
     return this.context.key;
   }
 
-  get watermark(): Date {
+  get watermark(): Instant {
     return this.context.watermark
   }
 }

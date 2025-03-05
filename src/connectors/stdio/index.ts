@@ -1,2 +1,2 @@
 export { Sink } from './sink';
-export { Source } from './source';
+export { Source, Framing } from './source';

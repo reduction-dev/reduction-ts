@@ -12,7 +12,7 @@
       "import": "./dist/topology/index.js",
       "require": "./dist/topology/index.js",
       "types": "./dist/topology/index.d.js"
-    }, 
+    },
     "./connectors/*": {
       "import": "./dist/connectors/*/index.js",
       "require": "./dist/connectors/*/index.js",
@@ -31,13 +31,14 @@
     "start": "bun index.ts",
     "serve": "bun index.ts serve",
     "config": "bun index.ts config",
-    "build": "tsc --project tsconfig.json"
+    "build": "rm -rf dist && tsc --project tsconfig.json"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.2.3",
     "@connectrpc/connect": "^2.0.1",
     "@connectrpc/connect-node": "^2.0.1",
-    "commander": "^13.1.0"
+    "commander": "^13.1.0",
+    "temporal-polyfill": "^0.2.5"
   },
   "devDependencies": {
     "@bufbuild/protoc-gen-es": "^2.2.3",
