@@ -7,10 +7,11 @@ import * as stdio from "../connectors/stdio";
 import type { Subject } from "../handler/subject";
 import * as pb from "../proto/handlerpb/handler_pb";
 import { Server } from "../server/server";
-import { Uint64ValueCodec } from "../state/scalar-codecs";
+import { stringValueCodec, uint64ValueCodec } from "../state/scalar-codecs";
 import * as topology from "../topology";
 import { Job } from "../topology/job";
 import type { KeyedEvent, OperatorHandler } from "../types";
+import { MapCodec } from "../state";
 
 const now = new Date();
 
@@ -104,10 +105,9 @@ test("Process Timer Expired", async () => {
 });
 
 test("Process State Mutations", async () => {
-  const codec = new StringUintMapCodec();
   // Setup server and client
   const client = await setupTestServer((op, sink) => {
-    const spec = new topology.MapSpec(op, "test-state", codec);
+    const spec = new topology.MapSpec(op, "test-state", stringUintMapCodec);
     return new TestHandler({
       onEvent: (subject, event) => {
         const count = spec.stateFor(subject);
@@ -141,7 +141,7 @@ test("Process State Mutations", async () => {
             entries: [
               {
                 key: new TextEncoder().encode("count"),
-                value: codec.encodeValue(0),
+                value: stringUintMapCodec.encodeValue(0),
               },
             ],
           },
@@ -165,8 +165,8 @@ test("Process State Mutations", async () => {
               mutation: {
                 case: "put",
                 value: {
-                  key: new TextEncoder().encode("test-key"),
-                  value: codec.encodeValue(42),
+                  key: stringUintMapCodec.encodeKey("test-key"),
+                  value: stringUintMapCodec.encodeValue(42),
                 },
               },
             },
@@ -178,10 +178,8 @@ test("Process State Mutations", async () => {
 });
 
 test("Process Multiple Events With State", async () => {
-  const codec = new StringUintMapCodec();
-
   const client = await setupTestServer((op, sink) => {
-    const spec = new topology.MapSpec(op, "count-state", codec);
+    const spec = new topology.MapSpec(op, "count-state", stringUintMapCodec);
     return new TestHandler({
       onEvent: (subject, event) => {
         const counts = spec.stateFor(subject);
@@ -214,28 +212,28 @@ test("Process Multiple Events With State", async () => {
     ],
     keyStates: [
       {
-        key: new TextEncoder().encode("key-1"),
+        key: Buffer.from("key-1"),
         stateEntryNamespaces: [
           {
             namespace: "count-state",
             entries: [
               {
-                key: new TextEncoder().encode("counter"),
-                value: codec.encodeValue(1),
+                key: stringUintMapCodec.encodeKey("counter"),
+                value: stringUintMapCodec.encodeValue(1),
               },
             ],
           },
         ],
       },
       {
-        key: new TextEncoder().encode("key-2"),
+        key: Buffer.from("key-2"),
         stateEntryNamespaces: [
           {
             namespace: "count-state",
             entries: [
               {
-                key: new TextEncoder().encode("counter"),
-                value: codec.encodeValue(2),
+                key: stringUintMapCodec.encodeKey("counter"),
+                value: stringUintMapCodec.encodeValue(2),
               },
             ],
           },
@@ -253,7 +251,7 @@ test("Process Multiple Events With State", async () => {
 
   expect(response.keyResults).toEqual([
     create(pb.KeyResultSchema, {
-      key: new TextEncoder().encode("key-1"),
+      key: Buffer.from("key-1"),
       stateMutationNamespaces: [
         {
           namespace: "count-state",
@@ -262,8 +260,8 @@ test("Process Multiple Events With State", async () => {
               mutation: {
                 case: "put",
                 value: {
-                  key: new TextEncoder().encode("counter"),
-                  value: codec.encodeValue(2),
+                  key: stringUintMapCodec.encodeKey("counter"),
+                  value: stringUintMapCodec.encodeValue(2),
                 },
               },
             },
@@ -272,7 +270,7 @@ test("Process Multiple Events With State", async () => {
       ],
     }),
     create(pb.KeyResultSchema, {
-      key: new TextEncoder().encode("key-2"),
+      key: Buffer.from("key-2"),
       stateMutationNamespaces: [
         {
           namespace: "count-state",
@@ -281,8 +279,8 @@ test("Process Multiple Events With State", async () => {
               mutation: {
                 case: "put",
                 value: {
-                  key: new TextEncoder().encode("counter"),
-                  value: codec.encodeValue(3),
+                  key: stringUintMapCodec.encodeKey("counter"),
+                  value: stringUintMapCodec.encodeValue(3),
                 },
               },
             },
@@ -294,11 +292,9 @@ test("Process Multiple Events With State", async () => {
 });
 
 test("Drop Value State", async () => {
-  const codec = new Uint64ValueCodec();
-
   // Setup server with ValueSpec
   const client = await setupTestServer((op, sink) => {
-    const spec = new topology.ValueSpec(op, "value-state", codec, 0);
+    const spec = new topology.ValueSpec(op, "value-state", uint64ValueCodec, 0);
     return new TestHandler({
       onEvent: (subject, event) => {
         const counter = spec.stateFor(subject);
@@ -329,7 +325,7 @@ test("Drop Value State", async () => {
             namespace: "value-state",
             entries: [
               {
-                value: codec.encode(42),
+                value: uint64ValueCodec.encode(42),
               },
             ],
           },
@@ -365,10 +361,8 @@ test("Drop Value State", async () => {
 });
 
 test("Increment Value State", async () => {
-  const codec = new Uint64ValueCodec();
-
   const client = await setupTestServer((op, sink) => {
-    const spec = new topology.ValueSpec(op, "counter-state", codec, 0);
+    const spec = new topology.ValueSpec(op, "counter-state", uint64ValueCodec, 0);
     return new TestHandler({
       onEvent: (subject, event) => {
         const counter = spec.stateFor(subject);
@@ -416,7 +410,7 @@ test("Increment Value State", async () => {
                 case: "put",
                 value: {
                   key: new TextEncoder().encode("counter-state"),
-                  value: codec.encode(2),
+                  value: uint64ValueCodec.encode(2),
                 },
               },
             },
@@ -486,26 +480,7 @@ async function setupTestServer(
   return client;
 }
 
-class StringUintMapCodec {
-  encodeKey(key: string): Uint8Array {
-    return Buffer.from(key);
-  }
-
-  decodeKey(data: Uint8Array): string {
-    return Buffer.from(data).toString('utf8');
-  }
-
-  encodeValue(value: number): Uint8Array {
-    const buffer = new ArrayBuffer(4);
-    new DataView(buffer).setUint32(0, value);
-    return new Uint8Array(buffer);
-  }
-
-  decodeValue(data: Uint8Array): number {
-    return new DataView(
-      data.buffer,
-      data.byteOffset,
-      data.byteLength
-    ).getUint32(0);
-  }
-}
+const stringUintMapCodec = new MapCodec<string, number>({
+  keyCodec: stringValueCodec,
+  valueCodec: uint64ValueCodec,
+});

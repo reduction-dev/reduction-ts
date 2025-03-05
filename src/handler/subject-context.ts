@@ -15,12 +15,12 @@ interface MutatingState {
  */
 export class SubjectContext {
   public readonly key: Uint8Array;
+  public readonly watermark: Date;
 
   private usedStates = new Map<string, MutatingState>();
   private sinkRequests: pb.SinkRequest[] = [];
   private timers: Timestamp[] = [];
   private timestamp: Date;
-  private watermark: Date;
   private stateCache: Map<string, unknown> = new Map();
   private keyState: KeyState;
 

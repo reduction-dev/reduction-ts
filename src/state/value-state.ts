@@ -21,7 +21,7 @@ export class ValueState<T> {
     this.#defaultValue = defaultValue;
 
     if (entries.length === 0) {
-      this.#value = defaultValue;
+      this.#value = defaultValue
     } else {
       this.#value = this.#codec.decode(entries[0].value);
     }
@@ -41,7 +41,10 @@ export class ValueState<T> {
           })
         ];
       case ValueStatus.Updated:
-        const data = this.#codec.encode(this.#value);
+        let data: Uint8Array | undefined;
+        if (this.#value !== undefined) {
+          data = this.#codec.encode(this.#value);
+        }
         return [
           create(pb.StateMutationSchema, {
             mutation: {

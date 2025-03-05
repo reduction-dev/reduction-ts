@@ -1,8 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { MapState } from "./map-state";
-import type { MapCodec } from "./map-codec";
+import { MapCodec } from "./map-codec";
 import * as pb from "../proto/handlerpb/handler_pb";
 import { create } from "@bufbuild/protobuf";
+import { ValueCodec } from "./value-codec";
 
 test("MapState name test", () => {
   const state = new MapState("test-name", codec, []);
@@ -124,21 +125,20 @@ test("MapState size operations", () => {
 
 const textEncoder = new TextEncoder();
 
-// String codec implementation for testing, now using Uint8Array
-const codec: MapCodec<string, string> = {
-  encodeKey(key: string): Uint8Array {
-    return Buffer.from(key);
-  },
-  decodeKey(data: Uint8Array): string {
-    return Buffer.from(data).toString('utf8');
-  },
-  encodeValue(value: string): Uint8Array {
+// String codec implementation for testing
+const stringValueCodec = new ValueCodec<string>({
+  encode(value: string): Uint8Array {
     return Buffer.from(value);
   },
-  decodeValue(data: Uint8Array): string {
+  decode(data: Uint8Array): string {
     return Buffer.from(data).toString('utf-8');
   }
-};
+});
+
+const codec = new MapCodec<string, string>({
+  keyCodec: stringValueCodec,
+  valueCodec: stringValueCodec,
+});
 
 // Add benchmark testing for entries() performance
 describe("MapState entries() benchmark", () => {
@@ -146,7 +146,7 @@ describe("MapState entries() benchmark", () => {
   const SMALL_SIZE = 100;
   const MEDIUM_SIZE = 1000;
   const LARGE_SIZE = 10000;
-  
+
   // Helper to create a state with n entries
   function createStateWithEntries(size: number, updatePercentage = 0, deletePercentage = 0): MapState<string, string> {
     // Create initial entries
@@ -158,16 +158,16 @@ describe("MapState entries() benchmark", () => {
         value: textEncoder.encode(value)
       });
     });
-    
+
     const state = new MapState<string, string>("benchmark", codec, entries);
-    
+
     // Apply updates
     const updateCount = Math.floor(size * updatePercentage);
     for (let i = 0; i < updateCount; i++) {
       const key = `key-${i}`; // Update from the start
       state.set(key, `updated-${i}`);
     }
-    
+
     // Apply deletes
     const deleteCount = Math.floor(size * deletePercentage);
     const deleteStart = size - deleteCount;
@@ -175,35 +175,35 @@ describe("MapState entries() benchmark", () => {
       const key = `key-${i}`; // Delete from the end
       state.delete(key);
     }
-    
+
     // Add new entries (not in original)
     const newCount = Math.floor(size * updatePercentage); // Same number as updates
     for (let i = 0; i < newCount; i++) {
       const key = `new-key-${i}`;
       state.set(key, `new-value-${i}`);
     }
-    
+
     return state;
   }
-  
+
   // Test entries() performance with different dataset sizes
   test("entries() performance with different sizes", () => {
     console.log("\nBenchmarking entries() with different dataset sizes:");
-    
+
     // Small dataset
     let state = createStateWithEntries(SMALL_SIZE);
     let start = performance.now();
     let results = Array.from(state.entries());
     let elapsed = performance.now() - start;
     console.log(`  Small (${SMALL_SIZE} entries): ${elapsed.toFixed(2)}ms, ${results.length} results`);
-    
+
     // Medium dataset
     state = createStateWithEntries(MEDIUM_SIZE);
     start = performance.now();
     results = Array.from(state.entries());
     elapsed = performance.now() - start;
     console.log(`  Medium (${MEDIUM_SIZE} entries): ${elapsed.toFixed(2)}ms, ${results.length} results`);
-    
+
     // Large dataset
     state = createStateWithEntries(LARGE_SIZE);
     start = performance.now();
@@ -211,39 +211,39 @@ describe("MapState entries() benchmark", () => {
     elapsed = performance.now() - start;
     console.log(`  Large (${LARGE_SIZE} entries): ${elapsed.toFixed(2)}ms, ${results.length} results`);
   });
-  
+
   // Test entries() with different update patterns
   test("entries() performance with different update patterns", () => {
     console.log("\nBenchmarking entries() with different update patterns:");
-    
+
     // No updates
     let state = createStateWithEntries(MEDIUM_SIZE, 0, 0);
     let start = performance.now();
     let results = Array.from(state.entries());
     let elapsed = performance.now() - start;
     console.log(`  No updates: ${elapsed.toFixed(2)}ms, ${results.length} results`);
-    
+
     // 10% updates, no deletes
     state = createStateWithEntries(MEDIUM_SIZE, 0.1, 0);
     start = performance.now();
     results = Array.from(state.entries());
     elapsed = performance.now() - start;
     console.log(`  10% updates, no deletes: ${elapsed.toFixed(2)}ms, ${results.length} results`);
-    
+
     // 50% updates, no deletes
     state = createStateWithEntries(MEDIUM_SIZE, 0.5, 0);
     start = performance.now();
     results = Array.from(state.entries());
     elapsed = performance.now() - start;
     console.log(`  50% updates, no deletes: ${elapsed.toFixed(2)}ms, ${results.length} results`);
-    
+
     // 10% updates, 10% deletes
     state = createStateWithEntries(MEDIUM_SIZE, 0.1, 0.1);
     start = performance.now();
     results = Array.from(state.entries());
     elapsed = performance.now() - start;
     console.log(`  10% updates, 10% deletes: ${elapsed.toFixed(2)}ms, ${results.length} results`);
-    
+
     // 50% updates, 50% deletes
     state = createStateWithEntries(MEDIUM_SIZE, 0.5, 0.5);
     start = performance.now();
@@ -251,15 +251,15 @@ describe("MapState entries() benchmark", () => {
     elapsed = performance.now() - start;
     console.log(`  50% updates, 50% deletes: ${elapsed.toFixed(2)}ms, ${results.length} results`);
   });
-  
+
   // Test multiple iterations of entries() to measure average performance
   test("entries() average performance", () => {
     const ITERATIONS = 10;
     console.log(`\nBenchmarking entries() average over ${ITERATIONS} iterations:`);
-    
+
     // Create state once
     const state = createStateWithEntries(MEDIUM_SIZE, 0.2, 0.1);
-    
+
     // Run multiple iterations
     let totalElapsed = 0;
     for (let i = 0; i < ITERATIONS; i++) {
@@ -268,7 +268,7 @@ describe("MapState entries() benchmark", () => {
       const elapsed = performance.now() - start;
       totalElapsed += elapsed;
     }
-    
+
     const averageElapsed = totalElapsed / ITERATIONS;
     console.log(`  Average time: ${averageElapsed.toFixed(2)}ms`);
   });

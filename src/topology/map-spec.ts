@@ -1,6 +1,7 @@
 import type { Operator } from "./operator";
 import type { Subject } from "../handler/subject";
-import { type MapCodec, MapState } from "../state";
+import type { MapCodec } from "../state";
+import { MapState } from "../state/map-state";
 
 export class MapSpec<K, V> {
   private codec: MapCodec<K, V>;

@@ -3,14 +3,14 @@ import { ValueState, type ValueCodec } from "../state";
 import type { Subject } from "../handler/subject";
 
 export class ValueSpec<T> {
-	private codec: ValueCodec<NonNullable<T>>;
+	private codec: ValueCodec<T>;
 	private id: string;
-	private defaultValue: T;
+	defaultValue: T;
 
-  constructor(op: Operator, id: string, codec: ValueCodec<NonNullable<T>>, defaultValue: T) {
+  constructor(op: Operator, id: string, codec: ValueCodec<T>, defaultValue: T) {
 		this.id = id;
 		this.codec = codec;
-		this.defaultValue = defaultValue;	
+		this.defaultValue = defaultValue;
   }
 
 	public stateFor(subject: Subject): ValueState<T> {

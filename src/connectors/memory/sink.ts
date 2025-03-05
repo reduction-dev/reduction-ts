@@ -1,5 +1,5 @@
 import { create } from "@bufbuild/protobuf";
-import { type Job, BaseSink } from "../../topology";
+import { type Job, Sink as BaseSink } from "../../topology";
 import * as pb from "../../proto/jobconfigpb/jobconfig_pb";
 import type { Subject } from "../../handler/subject";
 

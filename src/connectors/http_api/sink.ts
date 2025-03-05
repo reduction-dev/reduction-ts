@@ -1,6 +1,6 @@
 import { create } from "@bufbuild/protobuf";
 import * as pb from "../../proto/jobconfigpb/jobconfig_pb";
-import { type Job, BaseSink } from "../../topology";
+import { type Job, Sink as BaseSink } from "../../topology";
 
 export interface HTTPAPISinkParams {
   addr?: string;

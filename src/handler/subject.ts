@@ -27,4 +27,8 @@ export class Subject {
   get key(): Uint8Array {
     return this.context.key;
   }
+
+  get watermark(): Date {
+    return this.context.watermark
+  }
 }
