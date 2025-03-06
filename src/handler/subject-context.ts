@@ -1,7 +1,7 @@
 import * as pb from '../proto/handlerpb/handler_pb';
 import { create } from '@bufbuild/protobuf';
 import { type Timestamp } from "@bufbuild/protobuf/wkt";
-import { Instant, instantToProto } from "../instant";
+import { Temporal, instantToProto } from "../temporal";
 
 // A map of state IDs to state entries for one key.
 type KeyState = Map<string, pb.StateEntry[]>;
@@ -16,16 +16,16 @@ interface MutatingState {
  */
 export class SubjectContext {
   public readonly key: Uint8Array;
-  public readonly watermark: Instant;
+  public readonly watermark: Temporal.Instant;
 
   private usedStates = new Map<string, MutatingState>();
   private sinkRequests: pb.SinkRequest[] = [];
   private timers: Timestamp[] = [];
-  private timestamp: Instant;
+  private timestamp: Temporal.Instant;
   private stateCache: Map<string, unknown> = new Map();
   private keyState: KeyState;
 
-  constructor(key: Uint8Array, timestamp: Instant, watermark: Instant, keyState: KeyState) {
+  constructor(key: Uint8Array, timestamp: Temporal.Instant, watermark: Temporal.Instant, keyState: KeyState) {
     this.key = key;
     this.timestamp = timestamp;
     this.watermark = watermark;
@@ -60,11 +60,11 @@ export class SubjectContext {
     }));
   }
 
-  setTimer(timestamp: Instant): void {
+  setTimer(timestamp: Temporal.Instant): void {
     this.timers.push(instantToProto(timestamp));
   }
 
-  setTimestamp(timestamp: Instant): void {
+  setTimestamp(timestamp: Temporal.Instant): void {
     this.timestamp = timestamp;
   }
 

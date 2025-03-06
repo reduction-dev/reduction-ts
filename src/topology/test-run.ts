@@ -1,11 +1,11 @@
 import { create, toBinary } from "@bufbuild/protobuf";
-import { timestampFromDate } from "@bufbuild/protobuf/wkt";
 import { spawn } from "node:child_process";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { PipeHandler } from "../handler/pipe-handler";
 import type { SynthesizedHandler } from "../handler/synthesized-handler";
 import * as pb from "../proto/testrunpb/testrun_pb";
+import { instantToProto } from "../temporal";
 
 export interface TestRunOptions {
   /**
@@ -36,7 +36,7 @@ export class TestRun {
             keyedEvent: {
               key: keyedEvent.key,
               value: keyedEvent.value,
-              timestamp: timestampFromDate(keyedEvent.timestamp),
+              timestamp: instantToProto(keyedEvent.timestamp),
             }
           }
         }
@@ -88,14 +88,14 @@ export class TestRun {
         }
       });
     });
-    
+
     // Write the command buffer to stdin
     await pipeline(Readable.from(this.commandBuffer), process.stdin, { end: false });
 
     // Create the pipe handler to manage the communication
     const pipeHandler = new PipeHandler(this.handler, process.stdout, process.stdin);
     await pipeHandler.processMessages();
-    
+
     // Wait for process to exit
     await processPromise;
   }

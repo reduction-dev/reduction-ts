@@ -11,9 +11,9 @@ import * as topology from "../topology";
 import { Job } from "../topology/job";
 import type { KeyedEvent, OperatorHandler } from "../types";
 import { MapCodec } from "../state";
-import { Instant, instantToProto } from "../instant";
+import { Temporal, instantToProto } from "../temporal";
 
-const now = Instant.from("2023-01-01T00:00:00Z");
+const now = Temporal.Instant.from("2025-01-01T00:00:00Z");
 
 test("Process Keyed Event", async () => {
   // Setup server and client
@@ -116,8 +116,6 @@ test("Process State Mutations", async () => {
     });
   });
 
-  const testNow = Instant.from("2023-01-01T00:00:00Z");
-
   // Create the request with an initial state
   const request = create(pb.ProcessEventBatchRequestSchema, {
     events: [
@@ -126,7 +124,7 @@ test("Process State Mutations", async () => {
           case: "keyedEvent",
           value: {
             key: new TextEncoder().encode("test-key"),
-            timestamp: instantToProto(testNow),
+            timestamp: instantToProto(now),
             value: new TextEncoder().encode("test-value"),
           },
         },
@@ -148,7 +146,7 @@ test("Process State Mutations", async () => {
         ],
       },
     ],
-    watermark: instantToProto(testNow),
+    watermark: instantToProto(now),
   });
 
   // Call the server
@@ -424,12 +422,12 @@ test("Increment Value State", async () => {
 // Test handler implementation for tests
 class TestHandler implements OperatorHandler {
   onEventFn?: (subject: Subject, event: KeyedEvent) => void;
-  onTimerExpiredFn?: (subject: Subject, timer: Instant) => void;
+  onTimerExpiredFn?: (subject: Subject, timer: Temporal.Instant) => void;
 
   constructor(
     options: {
       onEvent?: (subject: Subject, event: KeyedEvent) => void;
-      onTimerExpired?: (subject: Subject, timer: Instant) => void;
+      onTimerExpired?: (subject: Subject, timer: Temporal.Instant) => void;
     } = {}
   ) {
     this.onEventFn = options.onEvent;
@@ -440,7 +438,7 @@ class TestHandler implements OperatorHandler {
     this.onEventFn?.(subject, event);
   }
 
-  onTimerExpired(subject: Subject, timer: Instant): void {
+  onTimerExpired(subject: Subject, timer: Temporal.Instant): void {
     this.onTimerExpiredFn?.(subject, timer);
   }
 }

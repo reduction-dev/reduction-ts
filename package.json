@@ -6,22 +6,27 @@
     ".": {
       "import": "./dist/index.js",
       "require": "./dist/index.js",
-      "types": "./dist/index.d.js"
+      "types": "./dist/index.d.ts"
     },
     "./topology": {
       "import": "./dist/topology/index.js",
       "require": "./dist/topology/index.js",
-      "types": "./dist/topology/index.d.js"
+      "types": "./dist/topology/index.d.ts"
     },
     "./connectors/*": {
       "import": "./dist/connectors/*/index.js",
       "require": "./dist/connectors/*/index.js",
-      "types": "./dist/connectors/*/index.d.js"
+      "types": "./dist/connectors/*/index.d.ts"
     },
     "./state": {
       "import": "./dist/state/index.js",
       "require": "./dist/state/index.js",
-      "types": "./dist/state/index.d.js"
+      "types": "./dist/state/index.d.ts"
+    },
+    "./temporal": {
+      "import": "./dist/temporal/index.js",
+      "require": "./dist/temporal/index.js",
+      "types": "./dist/temporal/index.d.ts"
     }
   },
   "bin": {

@@ -1,5 +1,5 @@
 import type { Subject } from "../handler/subject";
-import { Instant } from "../instant";
+import { Temporal } from "../temporal";
 
 /**
  * An event with a partitioning key and timestamp
@@ -7,7 +7,7 @@ import { Instant } from "../instant";
 export interface KeyedEvent {
   key: Uint8Array;
   value: Uint8Array;
-  timestamp: Instant;
+  timestamp: Temporal.Instant;
 }
 
 export interface OperatorHandler {
@@ -29,7 +29,7 @@ export interface OperatorHandler {
    * @param subject the subject to interact with
    * @param timer the timestamp when the timer was set to expire
    */
-  onTimerExpired(subject: Subject, timer: Instant): void | Promise<void>;
+  onTimerExpired(subject: Subject, timer: Temporal.Instant): void | Promise<void>;
 }
 
 export type KeyEventFunc = (event: Uint8Array) => KeyedEvent[];
