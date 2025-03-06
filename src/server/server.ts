@@ -20,10 +20,20 @@ export class Server {
     return (router: ConnectRouter) => {
       router.service(Handler, {
         async processEventBatch(request): Promise<handler_pb.ProcessEventBatchResponse> {
-          return handler.ProcessEventBatch(request);
+          try {
+            return await handler.ProcessEventBatch(request);
+          } catch (error) {
+            console.error('Error in processEventBatch:', error);
+            throw error;
+          }
         },
         async keyEventBatch(request): Promise<handler_pb.KeyEventBatchResponse> {
-          return handler.KeyEventBatch(request);
+          try {
+            return await handler.KeyEventBatch(request);
+          } catch (error) {
+            console.error('Error in keyEventBatch:', error);
+            throw error;
+          }
         }
       });
     };
