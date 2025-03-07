@@ -1,5 +1,7 @@
 {
   "name": "reduction-ts",
+  "version": "0.0.1",
+  "description": "The TypeScript SDK for Reduction",
   "module": "dist/index.js",
   "type": "module",
   "exports": {
@@ -32,6 +34,9 @@
   "bin": {
     "reduction-ts": "./src/cli.ts"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "start": "bun index.ts",
     "serve": "bun index.ts serve",
