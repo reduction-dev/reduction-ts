@@ -1,7 +1,14 @@
 {
   "name": "reduction-ts",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "The TypeScript SDK for Reduction",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reduction-dev/reduction-ts.git"
+  },
   "module": "dist/index.js",
   "type": "module",
   "exports": {
@@ -41,7 +48,10 @@
     "start": "bun index.ts",
     "serve": "bun index.ts serve",
     "config": "bun index.ts config",
-    "build": "rm -rf dist && tsc --project tsconfig.json"
+    "build": "rm -rf dist && tsc --project tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "test": "bun run typecheck && bun test",
+    "prepublishOnly": "bun run build"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.2.3",
