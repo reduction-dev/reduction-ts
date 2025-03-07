@@ -1,22 +1,28 @@
-# reduction-ts
+# Reduction TypeScript SDK
 
-To install dependencies:
+This is the official TypeScript client for the [Reduction streaming
+engine](https://github.com/reduction-dev/reduction).
+
+## Installation
+
+Reduction currently runs best with [bun](https://bun.sh/).
 
 ```bash
-bun install
+# Using bun (recommended)
+bun add reduction-ts
+
+# Using npm
+npm install --save reduction-ts
 ```
 
-To run:
+Then take a look at the [Getting Started guide](https://reduction.dev/docs/getting-started).
 
-```bash
-bun run index.ts
-```
+## Developing the SDK
 
-## Protocol Files & Code Generation
+### Developing against reduction-protocol
 
-This project uses protocol definitions from the sibling `reduction-protocol` repository to generate TypeScript code.
-
-### Development Workflow
+This project uses protocol definitions from the sibling `reduction-protocol`
+repository to generate TypeScript code.
 
 1. Ensure you have the `reduction-protocol` repository cloned at `../reduction-protocol` (sibling directory to this project)
 2. Run code generation: `./scripts/gen`
