@@ -1,9 +1,10 @@
 import { create } from "@bufbuild/protobuf";
 import * as pb from "../../proto/jobconfigpb/jobconfig_pb";
-import { type Job, Sink as BaseSink } from "../../topology";
+import { type Job, Sink as BaseSink, type ConfigVar } from "../../topology";
+import { stringVarProto } from "../../topology/config-var";
 
 export interface HTTPAPISinkParams {
-  addr?: string;
+  addr?: ConfigVar<string>;
 }
 
 export class Sink extends BaseSink<Uint8Array> {
@@ -15,7 +16,7 @@ export class Sink extends BaseSink<Uint8Array> {
         config: {
           case: 'httpApi',
           value: {
-            addr: params.addr,
+            addr: stringVarProto(params.addr),
           },
         },
       }),

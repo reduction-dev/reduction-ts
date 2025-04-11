@@ -3,3 +3,4 @@ export { Operator } from './operator';
 export { ValueSpec } from './value-spec';
 export { MapSpec } from './map-spec';
 export { Sink } from './sink';
+export { type ConfigVar, ConfigParam } from './config-var';

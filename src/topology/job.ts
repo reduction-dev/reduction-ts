@@ -1,7 +1,7 @@
 import { Server } from '../server/server';
 import { JobContext, type JobContextParams } from './job-context';
 import { TestRun, type TestRunOptions } from './test-run';
-import { Command, program } from 'commander';
+import { program } from 'commander';
 
 export type JobParams = JobContextParams;
 

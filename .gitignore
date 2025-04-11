@@ -36,3 +36,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 CLAUDE.md
 
 /src/reduction-protocol
+
+# Ignore copilot files that change a lot
+.github/copilot-instructions.md
+.github/prompts

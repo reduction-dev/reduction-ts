@@ -3,12 +3,13 @@ import type { KeyEventFunc, OperatorHandler } from "../types";
 import * as config_pb from '../proto/jobconfigpb/jobconfig_pb';
 import type { Operator } from "./operator";
 import { create, toJson, type JsonValue } from "@bufbuild/protobuf";
+import { int32VarProto, stringVarProto, type ConfigVar } from "./config-var";
 
 export interface JobContextParams {
-  workerCount?: number;
+  workerCount?: ConfigVar<number>;
   keyGroupCount?: number;
-  workingStorageLocation: string;
-  savepointStorageLocation?: string;
+  workingStorageLocation: ConfigVar<string>;
+  savepointStorageLocation?: ConfigVar<string>;
 }
 
 interface SourceSynthesis {
@@ -62,7 +63,12 @@ export class JobContext {
     const operator = this.operators[0]();
 
     const jobConfig = create(config_pb.JobConfigSchema, {
-      job: create(config_pb.JobSchema, this.jobParams),
+      job: create(config_pb.JobSchema, {
+        workerCount: int32VarProto(this.jobParams.workerCount),
+        keyGroupCount: this.jobParams.keyGroupCount,
+        workingStorageLocation: stringVarProto(this.jobParams.workingStorageLocation),
+        savepointStorageLocation: stringVarProto(this.jobParams.savepointStorageLocation),
+      }),
       sources: [source.config],
       sinks: [sink.config]
     });

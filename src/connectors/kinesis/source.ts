@@ -1,19 +1,20 @@
 import { create } from '@bufbuild/protobuf';
 import * as pb from '../../proto/jobconfigpb/jobconfig_pb';
-import type { Operator, Job } from '../../topology';
+import type { Operator, Job, ConfigVar } from '../../topology';
 import type { KeyEventFunc } from '../../types';
+import { stringVarProto } from '../../topology/config-var';
 
 export interface KinesisSourceParams {
   keyEvent: KeyEventFunc;
-  streamArn?: string;
-  endpoint?: string;
+  streamArn?: ConfigVar<string>;
+  endpoint?: ConfigVar<string>;
 }
 
 export class Source {
   private id: string;
   private operators: Operator[];
-  private streamArn?: string;
-  private endpoint?: string;
+  private streamArn?: ConfigVar<string>;
+  private endpoint?: ConfigVar<string>;
 
   constructor(job: Job, id: string, params: KinesisSourceParams) {
     this.id = id;
@@ -29,8 +30,8 @@ export class Source {
         config: {
           case: 'kinesis',
           value: {
-            streamArn: this.streamArn,
-            endpoint: this.endpoint,
+            streamArn: stringVarProto(this.streamArn),
+            endpoint: stringVarProto(this.endpoint),
           },
         },
       }),

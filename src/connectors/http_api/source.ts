@@ -1,18 +1,19 @@
 import { create } from '@bufbuild/protobuf';
 import * as pb from '../../proto/jobconfigpb/jobconfig_pb';
-import type { Operator, Job } from '../../topology';
+import type { Operator, Job, ConfigVar } from '../../topology';
 import type { KeyEventFunc } from '../../types';
+import { stringVarProto } from '../../topology/config-var';
 
 export interface HTTPAPISourceParams {
   keyEvent: KeyEventFunc;
-  addr?: string;
+  addr?: ConfigVar<string>;
   topics?: string[];
 }
 
 export class Source {
   private id: string;
   private operators: Operator[];
-  private addr?: string;
+  private addr?: ConfigVar<string>;
   private topics: string[];
 
   constructor(job: Job, id: string, params: HTTPAPISourceParams) {
@@ -29,7 +30,7 @@ export class Source {
         config: {
           case: 'httpApi',
           value: {
-            addr: this.addr,
+            addr: stringVarProto(this.addr),
             topics: this.topics,
           },
         },
