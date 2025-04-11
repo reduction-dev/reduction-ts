@@ -14,11 +14,22 @@ fi
 # Create output directory if it doesn't exist
 mkdir -p "$OUTPUT_DIR"
 
-# Add a version marker file with git commit hash from protocol repo
+# Get git commit hash from protocol repo
 pushd "$EXTERNAL_PROTOCOL_DIR" > /dev/null
 PROTOCOL_VERSION=$(git rev-parse HEAD)
 PROTOCOL_DATE=$(git log -1 --format=%cd --date=short)
 popd > /dev/null
+
+# Check if VERSION file exists and if commit has changed
+CURRENT_COMMIT=""
+if [ -f "$OUTPUT_DIR/VERSION" ]; then
+  CURRENT_COMMIT=$(grep "COMMIT=" "$OUTPUT_DIR/VERSION" | cut -d= -f2)
+fi
+
+if [ "$CURRENT_COMMIT" = "$PROTOCOL_VERSION" ]; then
+  echo "Protocol version unchanged ($PROTOCOL_VERSION). Skipping regeneration."
+  exit 0
+fi
 
 # Create version file with key=value pairs
 cat > "$OUTPUT_DIR/VERSION" << EOF
