@@ -9,26 +9,22 @@ export interface StdioSourceParams {
 }
 
 export class Source {
-	private id: string;
 	private operators: Operator[];
-	private framing?: Framing;
 
 	constructor(job: Job, id: string, params: StdioSourceParams) {
-		this.id = id;
 		this.operators = [];
-		this.framing = params.framing;
 
 		job.context.registerSource(() => ({
 			keyEvent: params.keyEvent,
 			operators: this.operators,
 			config: create(pb.SourceSchema, {
-				id: this.id,
+				id,
 				config: {
 					case: 'stdio',
 					value: {
-						framing: this.framing?.config(),
+						framing: params.framing?.config(),
 					},
-				},	
+				},
 			}),
 		}));
 	}
@@ -57,8 +53,8 @@ class DelimitedFraming extends Framing {
 
 	config(): pb.Framing {
 		return create(pb.FramingSchema, {
-			scheme: { 
-				case: 'delimited', 
+			scheme: {
+				case: 'delimited',
 				value: { delimiter: this.delimiter },
 			},
 		});

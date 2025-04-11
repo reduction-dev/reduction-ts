@@ -11,27 +11,21 @@ export interface KinesisSourceParams {
 }
 
 export class Source {
-  private id: string;
   private operators: Operator[];
-  private streamArn?: ConfigVar<string>;
-  private endpoint?: ConfigVar<string>;
 
   constructor(job: Job, id: string, params: KinesisSourceParams) {
-    this.id = id;
     this.operators = [];
-    this.streamArn = params.streamArn;
-    this.endpoint = params.endpoint;
 
     job.context.registerSource(() => ({
       keyEvent: params.keyEvent,
       operators: this.operators,
       config: create(pb.SourceSchema, {
-        id: this.id,
+        id,
         config: {
           case: 'kinesis',
           value: {
-            streamArn: stringVarProto(this.streamArn),
-            endpoint: stringVarProto(this.endpoint),
+            streamArn: stringVarProto(params.streamArn),
+            endpoint: stringVarProto(params.endpoint),
           },
         },
       }),

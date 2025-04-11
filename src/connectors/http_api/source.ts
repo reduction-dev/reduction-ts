@@ -11,27 +11,21 @@ export interface HTTPAPISourceParams {
 }
 
 export class Source {
-  private id: string;
   private operators: Operator[];
-  private addr?: ConfigVar<string>;
-  private topics: string[];
 
   constructor(job: Job, id: string, params: HTTPAPISourceParams) {
-    this.id = id;
     this.operators = [];
-    this.addr = params.addr;
-    this.topics = params.topics || [];
 
     job.context.registerSource(() => ({
       keyEvent: params.keyEvent,
       operators: this.operators,
       config: create(pb.SourceSchema, {
-        id: this.id,
+        id,
         config: {
           case: 'httpApi',
           value: {
-            addr: stringVarProto(this.addr),
-            topics: this.topics,
+            addr: stringVarProto(params.addr),
+            topics: params.topics,
           },
         },
       }),
