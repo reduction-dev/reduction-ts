@@ -4,13 +4,15 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
+import type { Int32Var, StringVar } from "./resolvable_pb";
+import { file_jobconfigpb_resolvable } from "./resolvable_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file jobconfigpb/jobconfig.proto.
  */
 export const file_jobconfigpb_jobconfig: GenFile = /*@__PURE__*/
-  fileDesc("Chtqb2Jjb25maWdwYi9qb2Jjb25maWcucHJvdG8SF2Rldi5yZWR1Y3Rpb24uam9iY29uZmlnIpYBCglKb2JDb25maWcSKQoDam9iGAEgASgLMhwuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuSm9iEjAKB3NvdXJjZXMYAiADKAsyHy5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5Tb3VyY2USLAoFc2lua3MYAyADKAsyHS5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5TaW5rInoKA0pvYhIUCgx3b3JrZXJfY291bnQYASABKAUSFwoPa2V5X2dyb3VwX2NvdW50GAIgASgFEiAKGHdvcmtpbmdfc3RvcmFnZV9sb2NhdGlvbhgDIAEoCRIiChpzYXZlcG9pbnRfc3RvcmFnZV9sb2NhdGlvbhgEIAEoCSKJAgoGU291cmNlEgoKAmlkGAEgASgJEjUKBXN0ZGlvGAIgASgLMiQuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuU3RkaW9Tb3VyY2VIABI5CgdraW5lc2lzGAMgASgLMiYuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuS2luZXNpc1NvdXJjZUgAEjoKCGh0dHBfYXBpGAQgASgLMiYuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuSFRUUEFQSVNvdXJjZUgAEjsKCGVtYmVkZGVkGAUgASgLMicuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuRW1iZWRkZWRTb3VyY2VIAEIICgZjb25maWciwgEKBFNpbmsSCgoCaWQYASABKAkSMwoFc3RkaW8YAiABKAsyIi5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5TdGRpb1NpbmtIABI4CghodHRwX2FwaRgDIAEoCzIkLmRldi5yZWR1Y3Rpb24uam9iY29uZmlnLkhUVFBBUElTaW5rSAASNQoGbWVtb3J5GAQgASgLMiMuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuTWVtb3J5U2lua0gAQggKBmNvbmZpZyJACgtTdGRpb1NvdXJjZRIxCgdmcmFtaW5nGAEgASgLMiAuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuRnJhbWluZyLnAQoHRnJhbWluZxJOCg5sZW5ndGhfZW5jb2RlZBgBIAEoCzI0LmRldi5yZWR1Y3Rpb24uam9iY29uZmlnLkZyYW1pbmcuTGVuZ3RoRW5jb2RlZFNjaGVtZUgAEkUKCWRlbGltaXRlZBgCIAEoCzIwLmRldi5yZWR1Y3Rpb24uam9iY29uZmlnLkZyYW1pbmcuRGVsaW1pdGVkU2NoZW1lSAAaFQoTTGVuZ3RoRW5jb2RlZFNjaGVtZRokCg9EZWxpbWl0ZWRTY2hlbWUSEQoJZGVsaW1pdGVyGAEgASgMQggKBnNjaGVtZSI1Cg1LaW5lc2lzU291cmNlEhIKCnN0cmVhbV9hcm4YASABKAkSEAoIZW5kcG9pbnQYAiABKAkiLQoNSFRUUEFQSVNvdXJjZRIMCgRhZGRyGAEgASgJEg4KBnRvcGljcxgCIAMoCSLRAQoORW1iZWRkZWRTb3VyY2USEwoLc3BsaXRfY291bnQYASABKAUSEgoKYmF0Y2hfc2l6ZRgCIAEoBRJICglnZW5lcmF0b3IYAyABKA4yNS5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5FbWJlZGRlZFNvdXJjZS5HZW5lcmF0b3JUeXBlIkwKDUdlbmVyYXRvclR5cGUSHgoaR0VORVJBVE9SX1RZUEVfVU5TUEVDSUZJRUQQABIbChdHRU5FUkFUT1JfVFlQRV9TRVFVRU5DRRABIgsKCVN0ZGlvU2luayIbCgtIVFRQQVBJU2luaxIMCgRhZGRyGAEgASgJIgwKCk1lbW9yeVNpbmtCLloscmVkdWN0aW9uLmRldi9yZWR1Y3Rpb24tcHJvdG9jb2wvam9iY29uZmlncGJiBnByb3RvMw");
+  fileDesc("Chtqb2Jjb25maWdwYi9qb2Jjb25maWcucHJvdG8SF2Rldi5yZWR1Y3Rpb24uam9iY29uZmlnIpYBCglKb2JDb25maWcSKQoDam9iGAEgASgLMhwuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuSm9iEjAKB3NvdXJjZXMYAiADKAsyHy5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5Tb3VyY2USLAoFc2lua3MYAyADKAsyHS5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5TaW5rIuUBCgNKb2ISNwoMd29ya2VyX2NvdW50GAEgASgLMiEuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuSW50MzJWYXISFwoPa2V5X2dyb3VwX2NvdW50GAIgASgFEkQKGHdvcmtpbmdfc3RvcmFnZV9sb2NhdGlvbhgDIAEoCzIiLmRldi5yZWR1Y3Rpb24uam9iY29uZmlnLlN0cmluZ1ZhchJGChpzYXZlcG9pbnRfc3RvcmFnZV9sb2NhdGlvbhgEIAEoCzIiLmRldi5yZWR1Y3Rpb24uam9iY29uZmlnLlN0cmluZ1ZhciKJAgoGU291cmNlEgoKAmlkGAEgASgJEjUKBXN0ZGlvGAIgASgLMiQuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuU3RkaW9Tb3VyY2VIABI5CgdraW5lc2lzGAMgASgLMiYuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuS2luZXNpc1NvdXJjZUgAEjoKCGh0dHBfYXBpGAQgASgLMiYuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuSFRUUEFQSVNvdXJjZUgAEjsKCGVtYmVkZGVkGAUgASgLMicuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuRW1iZWRkZWRTb3VyY2VIAEIICgZjb25maWciwgEKBFNpbmsSCgoCaWQYASABKAkSMwoFc3RkaW8YAiABKAsyIi5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5TdGRpb1NpbmtIABI4CghodHRwX2FwaRgDIAEoCzIkLmRldi5yZWR1Y3Rpb24uam9iY29uZmlnLkhUVFBBUElTaW5rSAASNQoGbWVtb3J5GAQgASgLMiMuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuTWVtb3J5U2lua0gAQggKBmNvbmZpZyJACgtTdGRpb1NvdXJjZRIxCgdmcmFtaW5nGAEgASgLMiAuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuRnJhbWluZyLnAQoHRnJhbWluZxJOCg5sZW5ndGhfZW5jb2RlZBgBIAEoCzI0LmRldi5yZWR1Y3Rpb24uam9iY29uZmlnLkZyYW1pbmcuTGVuZ3RoRW5jb2RlZFNjaGVtZUgAEkUKCWRlbGltaXRlZBgCIAEoCzIwLmRldi5yZWR1Y3Rpb24uam9iY29uZmlnLkZyYW1pbmcuRGVsaW1pdGVkU2NoZW1lSAAaFQoTTGVuZ3RoRW5jb2RlZFNjaGVtZRokCg9EZWxpbWl0ZWRTY2hlbWUSEQoJZGVsaW1pdGVyGAEgASgMQggKBnNjaGVtZSJ9Cg1LaW5lc2lzU291cmNlEjYKCnN0cmVhbV9hcm4YASABKAsyIi5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5TdHJpbmdWYXISNAoIZW5kcG9pbnQYAiABKAsyIi5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5TdHJpbmdWYXIiUQoNSFRUUEFQSVNvdXJjZRIwCgRhZGRyGAEgASgLMiIuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuU3RyaW5nVmFyEg4KBnRvcGljcxgCIAMoCSLRAQoORW1iZWRkZWRTb3VyY2USEwoLc3BsaXRfY291bnQYASABKAUSEgoKYmF0Y2hfc2l6ZRgCIAEoBRJICglnZW5lcmF0b3IYAyABKA4yNS5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5FbWJlZGRlZFNvdXJjZS5HZW5lcmF0b3JUeXBlIkwKDUdlbmVyYXRvclR5cGUSHgoaR0VORVJBVE9SX1RZUEVfVU5TUEVDSUZJRUQQABIbChdHRU5FUkFUT1JfVFlQRV9TRVFVRU5DRRABIgsKCVN0ZGlvU2luayI/CgtIVFRQQVBJU2luaxIwCgRhZGRyGAEgASgLMiIuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuU3RyaW5nVmFyIgwKCk1lbW9yeVNpbmtCLloscmVkdWN0aW9uLmRldi9yZWR1Y3Rpb24tcHJvdG9jb2wvam9iY29uZmlncGJiBnByb3RvMw", [file_jobconfigpb_resolvable]);
 
 /**
  * JobConfig is the configuration needed to run a job
@@ -48,9 +50,9 @@ export const JobConfigSchema: GenMessage<JobConfig> = /*@__PURE__*/
  */
 export type Job = Message<"dev.reduction.jobconfig.Job"> & {
   /**
-   * @generated from field: int32 worker_count = 1;
+   * @generated from field: dev.reduction.jobconfig.Int32Var worker_count = 1;
    */
-  workerCount: number;
+  workerCount?: Int32Var;
 
   /**
    * @generated from field: int32 key_group_count = 2;
@@ -58,14 +60,14 @@ export type Job = Message<"dev.reduction.jobconfig.Job"> & {
   keyGroupCount: number;
 
   /**
-   * @generated from field: string working_storage_location = 3;
+   * @generated from field: dev.reduction.jobconfig.StringVar working_storage_location = 3;
    */
-  workingStorageLocation: string;
+  workingStorageLocation?: StringVar;
 
   /**
-   * @generated from field: string savepoint_storage_location = 4;
+   * @generated from field: dev.reduction.jobconfig.StringVar savepoint_storage_location = 4;
    */
-  savepointStorageLocation: string;
+  savepointStorageLocation?: StringVar;
 };
 
 /**
@@ -250,14 +252,14 @@ export const Framing_DelimitedSchemeSchema: GenMessage<Framing_DelimitedScheme> 
  */
 export type KinesisSource = Message<"dev.reduction.jobconfig.KinesisSource"> & {
   /**
-   * @generated from field: string stream_arn = 1;
+   * @generated from field: dev.reduction.jobconfig.StringVar stream_arn = 1;
    */
-  streamArn: string;
+  streamArn?: StringVar;
 
   /**
-   * @generated from field: string endpoint = 2;
+   * @generated from field: dev.reduction.jobconfig.StringVar endpoint = 2;
    */
-  endpoint: string;
+  endpoint?: StringVar;
 };
 
 /**
@@ -272,9 +274,9 @@ export const KinesisSourceSchema: GenMessage<KinesisSource> = /*@__PURE__*/
  */
 export type HTTPAPISource = Message<"dev.reduction.jobconfig.HTTPAPISource"> & {
   /**
-   * @generated from field: string addr = 1;
+   * @generated from field: dev.reduction.jobconfig.StringVar addr = 1;
    */
-  addr: string;
+  addr?: StringVar;
 
   /**
    * @generated from field: repeated string topics = 2;
@@ -357,9 +359,9 @@ export const StdioSinkSchema: GenMessage<StdioSink> = /*@__PURE__*/
  */
 export type HTTPAPISink = Message<"dev.reduction.jobconfig.HTTPAPISink"> & {
   /**
-   * @generated from field: string addr = 1;
+   * @generated from field: dev.reduction.jobconfig.StringVar addr = 1;
    */
-  addr: string;
+  addr?: StringVar;
 };
 
 /**
