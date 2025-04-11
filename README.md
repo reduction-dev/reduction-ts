@@ -28,3 +28,10 @@ repository to generate TypeScript code.
 2. Run code generation: `./scripts/gen`
 3. Generated files will be placed in `src/proto/` and contain version information in `src/proto/VERSION`
 4. Generated TypeScript files should be committed to the repository.
+
+## Releasing a new version
+
+```
+npm version patch
+git push
+```
