@@ -33,16 +33,15 @@ export class LazySubjectBatch {
     }
   }
 
-  subjectFor(key: Uint8Array, timestamp: Temporal.Instant): Subject {
+  subjectFor(key: Uint8Array): Subject {
     const keyString = Buffer.from(key).toString("base64");
 
     const foundSubject = this.subjects.get(keyString);
     if (foundSubject) {
-      foundSubject.context.setTimestamp(timestamp);
       return foundSubject;
     }
 
-    const subject = new Subject(key, timestamp, this.watermark, this.stateForKey(key));
+    const subject = new Subject(key, this.watermark, this.stateForKey(key));
     this.subjects.set(keyString, subject);
 
     return subject;

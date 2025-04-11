@@ -359,7 +359,7 @@ test("Drop Value State", async () => {
 });
 
 test("Increment Value State", async () => {
-  const client = await setupTestServer((op, sink) => {
+  const client = await setupTestServer((op) => {
     const spec = new topology.ValueSpec(op, "counter-state", uint64ValueCodec, 0);
     return new TestHandler({
       onEvent: (subject, event) => {

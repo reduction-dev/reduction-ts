@@ -30,21 +30,19 @@ export class SynthesizedHandler {
         case "keyedEvent": {
           const keyedEvent = event.value;
           assert(keyedEvent.timestamp, "Keyed event timestamp is required");
-          const ts = instantFromProto(keyedEvent.timestamp);
-          const subject = batch.subjectFor(keyedEvent.key, ts);
+          const subject = batch.subjectFor(keyedEvent.key);
           this.operatorHandler.onEvent(subject, {
             key: keyedEvent.key,
             value: keyedEvent.value,
-            timestamp: ts,
+            timestamp: instantFromProto(keyedEvent.timestamp),
           });
           break;
         }
         case "timerExpired": {
           const timerExpired = event.value;
           assert(timerExpired.timestamp, "Timer expired timestamp is required");
-          const ts = instantFromProto(timerExpired.timestamp);
-          const subject = batch.subjectFor(timerExpired.key, ts);
-          this.operatorHandler.onTimerExpired(subject, ts);
+          const subject = batch.subjectFor(timerExpired.key);
+          this.operatorHandler.onTimerExpired(subject, instantFromProto(timerExpired.timestamp));
           break;
         }
         default:

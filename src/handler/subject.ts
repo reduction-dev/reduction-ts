@@ -10,8 +10,8 @@ type KeyState = Map<string, StateEntry[]>;
  */
 export class Subject {
   public context: SubjectContext
-  constructor(key: Uint8Array, timestamp: Temporal.Instant, watermark: Temporal.Instant, keyState: KeyState) {
-    this.context = new SubjectContext(key, timestamp, watermark, keyState);
+  constructor(key: Uint8Array, watermark: Temporal.Instant, keyState: KeyState) {
+    this.context = new SubjectContext(key, watermark, keyState);
   }
 
   /**
