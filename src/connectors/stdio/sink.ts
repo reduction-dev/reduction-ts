@@ -11,7 +11,7 @@ export class Sink extends BaseSink<Uint8Array> {
     this.id = id;
     job.context.registerSink(() => ({
       config: create(pb.SinkSchema, {
-        id,
+        id: this.id,
         config: {
           case: 'stdio',
           value: {},

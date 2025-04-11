@@ -34,18 +34,16 @@ export class Source {
 	}
 }
 
-export class Framing {
+export abstract class Framing {
 	static delimited(params: { delimiter: Uint8Array }): Framing {
 		return new DelimitedFraming(params);
 	}
 
-	config(): pb.Framing {
-		throw new Error('Not implemented');
-	}
+	abstract config(): pb.Framing;
 }
 
 class DelimitedFraming extends Framing {
-	public delimiter: Uint8Array<ArrayBufferLike>;
+	public delimiter: Uint8Array;
 	constructor(params: { delimiter: Uint8Array }) {
 		super();
 		this.delimiter = params.delimiter;

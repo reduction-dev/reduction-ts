@@ -59,11 +59,11 @@ export class MapState<K, V> {
 
   public mutations(): pb.StateMutation[] {
     const mutations: pb.StateMutation[] = [];
-    
+
     for (const keyStr of this.#dirtyKeys) {
       const keyBytes = this.#mapKeyToBytes(keyStr);
       const value = this.#state.get(keyStr);
-      
+
       if (value === undefined) {
         // This key was deleted
         mutations.push(create(pb.StateMutationSchema, {
@@ -86,20 +86,20 @@ export class MapState<K, V> {
         }));
       }
     }
-    
+
     return mutations;
   }
-  
+
   public clear(): void {
     // Mark all keys as dirty before clearing
     for (const keyStr of this.#state.keys()) {
       this.#dirtyKeys.add(keyStr);
     }
-    
+
     // Clear the state map
     this.#state.clear();
   }
-  
+
   public get size(): number {
     return this.#state.size;
   }

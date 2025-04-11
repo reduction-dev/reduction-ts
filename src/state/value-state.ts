@@ -41,23 +41,21 @@ export class ValueState<T> {
           })
         ];
       case ValueStatus.Updated:
-        let data: Uint8Array | undefined;
-        if (this.#value !== undefined) {
-          data = this.#codec.encode(this.#value);
-        }
         return [
           create(pb.StateMutationSchema, {
             mutation: {
               case: 'put',
               value: create(pb.PutMutationSchema, {
                 key: Buffer.from(this.#name),
-                value: data,
+                value: this.#value !== undefined
+                 ? this.#codec.encode(this.#value)
+                 : undefined,
               }),
             }
           })
         ];
       default:
-        return [];
+        throw new Error(`Unknown value status: ${this.#status}`);
     }
   }
 

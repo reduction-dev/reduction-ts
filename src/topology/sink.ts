@@ -1,7 +1,5 @@
 import type { Subject } from "../handler/subject";
 
-export abstract class Sink<Uint8Array> {
-  public collect(subject: Subject, value: Uint8Array): void {
-    throw new Error("Method not implemented.");
-  }
+export abstract class Sink<T> {
+  public abstract collect(subject: Subject, value: T): void
 }

@@ -29,6 +29,7 @@ export class SubjectContext {
     this.watermark = watermark;
     this.keyState = keyState;
   }
+
   registerStateUse(id: string, state: MutatingState): void {
     this.usedStates.set(id, state);
   }
@@ -41,7 +42,7 @@ export class SubjectContext {
   }
 
   /**
-   * Gets and unknown state type from the cache
+   * Gets an unknown state type from the cache
    */
   getState(name: string): unknown {
     return this.stateCache.get(name);
@@ -92,10 +93,6 @@ export class SubjectContext {
 
   getTimers(): Timestamp[] {
     return this.timers;
-  }
-
-  getKey(): Uint8Array {
-    return this.key;
   }
 
   getKeyResults(): pb.KeyResult[] {
