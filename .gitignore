@@ -40,3 +40,6 @@ CLAUDE.md
 # Ignore copilot files that change a lot
 .github/copilot-instructions.md
 .github/prompts
+
+# Ignore generated docs
+/docs

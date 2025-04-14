@@ -1,1 +1,1 @@
-export { Source } from './source';
+export { Source, type KinesisSourceParams } from './source';

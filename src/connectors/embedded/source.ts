@@ -3,16 +3,45 @@ import * as pb from '../../proto/jobconfigpb/jobconfig_pb';
 import type { Operator, Job } from '../../topology';
 import type { KeyEventFunc } from '../../types';
 
+/**
+ * Parameters for creating an embedded source.
+ */
 export interface EmbeddedSourceParams {
+  /**
+   * Function that converts event data to KeyedEvents for processing.
+   */
   keyEvent: KeyEventFunc;
+
+  /**
+   * Optional number of splits to create for reading parallelism.
+   */
   splitCount?: number;
+
+  /**
+   * Optional number of events to generate in each batch.
+   */
   batchSize?: number;
+
+  /**
+   * Optional generator type, currently only supports "sequence".
+   */
   generator?: "sequence";
 }
 
+/**
+ * Embedded Source generates test data within the system without requiring
+ * external connectivity. Useful for testing and development.
+ */
 export class Source {
   private operators: Operator[];
 
+  /**
+   * Creates a new embedded source.
+   *
+   * @param job - The job that will use this source
+   * @param id - An identifier for this source
+   * @param params - Configuration parameters for the embedded source
+   */
   constructor(job: Job, id: string, params: EmbeddedSourceParams) {
     this.operators = [];
 
@@ -35,6 +64,11 @@ export class Source {
     }));
   }
 
+  /**
+   * Connects an operator to this source.
+   *
+   * @param operator - The operator that will process events from this source
+   */
   connect(operator: Operator) {
     this.operators.push(operator);
   }

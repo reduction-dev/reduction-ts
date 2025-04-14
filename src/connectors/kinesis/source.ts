@@ -4,15 +4,40 @@ import type { Operator, Job, ConfigVar } from '../../topology';
 import type { KeyEventFunc } from '../../types';
 import { stringVarProto } from '../../topology/config-var';
 
+/**
+ * Parameters for creating a Kinesis source.
+ */
 export interface KinesisSourceParams {
+  /**
+   * Function that converts event data to KeyedEvents for processing.
+   */
   keyEvent: KeyEventFunc;
+
+  /**
+   * The ARN of the Kinesis stream to read from.
+   */
   streamArn?: ConfigVar<string>;
+
+  /**
+   * Optional custom endpoint URL for connecting to Kinesis.
+   */
   endpoint?: ConfigVar<string>;
 }
 
+/**
+ * Kinesis Source provides connectivity to AWS Kinesis streams for real-time
+ * data processing from AWS services.
+ */
 export class Source {
   private operators: Operator[];
 
+  /**
+   * Creates a new Kinesis source.
+   *
+   * @param job - The job that will use this source
+   * @param id - An identifier for this source
+   * @param params - Configuration parameters for the Kinesis source
+   */
   constructor(job: Job, id: string, params: KinesisSourceParams) {
     this.operators = [];
 
@@ -32,6 +57,11 @@ export class Source {
     }));
   }
 
+  /**
+   * Connects an operator to this source.
+   *
+   * @param operator - The operator that will process events from this source
+   */
   connect(operator: Operator) {
     this.operators.push(operator);
   }

@@ -3,13 +3,18 @@ import { JobContext, type JobContextParams } from './job-context';
 import { TestRun, type TestRunOptions } from './test-run';
 import { program } from 'commander';
 
-export type JobParams = JobContextParams;
+/**
+ * Parameters for creating a Job.
+*/
+export interface JobParams extends JobContextParams{};
 
 /**
  * The Job class represents a data processing job in the Reduction framework.
  */
 export class Job {
+  /** @internal */
   public context: JobContext;
+
   private port: number;
   private server?: Server;
 
@@ -25,6 +30,12 @@ export class Job {
     return new TestRun(this.context.synthesize().handler, options);
   }
 
+  /**
+   * Run the job executable. When invoking your handler executable there are two
+   * subcommands:
+   * - `config`: Prints job configuration to stdout as JSON.
+   * - `start`: Starts the handler server.
+   */
   run(): void {
     const { handler, config } = this.context.synthesize();
 

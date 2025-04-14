@@ -7,25 +7,44 @@ import type { SynthesizedHandler } from "../handler/synthesized-handler";
 import * as pb from "../proto/testrunpb/testrun_pb";
 import { instantToProto } from "../temporal";
 
+/**
+ * Options for a test run.
+ */
 export interface TestRunOptions {
   /**
    * If true, the test run will print messages from the reduction process.
+   *
    * @default false
    */
   verbose?: boolean;
 }
 
+/**
+ * A TestRun creates a list of commands to send to a reduction `testrun`
+ * process. Upon calling `run` all of the commands are sent to `testrun` which
+ * in turn invokes the OperatorHandler methods. The results of the run can be
+ * inspected in a memory sink.
+ *
+ * TestRuns should be created using the {@link Job.createTestRun} method.
+ */
 export class TestRun {
   private handler: SynthesizedHandler
   private commandBuffer: Buffer
   private verbose: boolean;
 
+  /**
+   * @ignore
+   */
   constructor(handler: SynthesizedHandler, options?: TestRunOptions) {
     this.handler = handler
     this.commandBuffer = Buffer.alloc(0)
     this.verbose = options?.verbose ?? false;
   }
 
+  /**
+   * Add a source record for processing to the test run.
+   * @param record
+   */
   public addRecord(record: Buffer): void {
     const keyedEvents = this.handler.KeyEvent(record)
     for (const keyedEvent of keyedEvents) {
@@ -44,6 +63,10 @@ export class TestRun {
     }
   }
 
+  /**
+   * Tell the Reduction sources to emit a periodic watermark to advance the
+   * job's time and expire timers.
+   */
   public addWatermark(): void {
     this.addCommand(create(pb.RunnerCommandSchema, {
       command: {
@@ -53,6 +76,9 @@ export class TestRun {
     }));
   }
 
+  /**
+   * Execute the test run.
+   */
   public async run(): Promise<void> {
     this.addCommand(create(pb.RunnerCommandSchema, {
       command: {

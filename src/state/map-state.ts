@@ -2,30 +2,57 @@ import * as pb from "../proto/handlerpb/handler_pb";
 import { create } from "@bufbuild/protobuf";
 import type { MapCodec } from "./map-codec";
 
-// MapState manages a map of key-value pairs with state tracking
+/**
+ * MapState manages a persisted map of key-value pairs.
+ *
+ * MapStates are created using the {@link topology.MapSpec.stateFor} method.
+ *
+ * @typeParam K The key type
+ * @typeParam V The value type
+ */
 export class MapState<K, V> {
   #name: string;
   #state: Map<string, V> = new Map();
   #dirtyKeys: Set<string> = new Set();
   #codec: MapCodec<K, V>;
 
+  /**
+   * @ignore
+   */
   constructor(name: string, codec: MapCodec<K, V>, stateEntries: pb.StateEntry[]) {
     this.#name = name;
     this.#codec = codec;
     this.#loadEntries(stateEntries);
   }
 
+  /**
+   * Retrieves a value by its key.
+   *
+   * @param key The key to look up
+   * @returns The value associated with the key, or undefined if not found
+   */
   public get(key: K): V | undefined {
     const mapKey = this.#getMapKey(key);
     return this.#state.get(mapKey);
   }
 
+  /**
+   * Sets a value for the given key.
+   *
+   * @param key The key to associate with the value
+   * @param value The value to store
+   */
   public set(key: K, value: V): void {
     const mapKey = this.#getMapKey(key);
     this.#state.set(mapKey, value);
     this.#dirtyKeys.add(mapKey);
   }
 
+  /**
+   * Deletes a key-value pair and marks the key as modified.
+   *
+   * @param key The key to delete
+   */
   public delete(key: K): void {
     const mapKey = this.#getMapKey(key);
     const didRemove = this.#state.delete(mapKey);
@@ -34,11 +61,22 @@ export class MapState<K, V> {
     }
   }
 
+  /**
+   * Checks if a key exists in the state.
+   *
+   * @param key The key to check
+   * @returns true if the key exists, false otherwise
+   */
   public has(key: K): boolean {
     const mapKey = this.#getMapKey(key);
     return this.#state.has(mapKey);
   }
 
+  /**
+   * Returns an iterator for all key-value pairs in the state.
+   *
+   * @returns An iterator yielding [key, value] pairs
+   */
   public *entries(): IterableIterator<[K, V]> {
     for (const [keyStr, value] of this.#state.entries()) {
       const keyBytes = this.#mapKeyToBytes(keyStr);
@@ -47,16 +85,30 @@ export class MapState<K, V> {
     }
   }
 
+  /**
+   * Returns an iterator for all keys in the state.
+   *
+   * @returns An iterator yielding keys
+   */
   public *keys(): IterableIterator<K> {
     for (const [key] of this.entries()) {
       yield key;
     }
   }
 
+  /**
+   * Returns an iterator for all values in the state.
+   *
+   * @returns An iterator yielding values
+   */
   public values(): MapIterator<V> {
     return this.#state.values();
   }
 
+  /**
+   * Used to collect mutations to send back to the reduction operator.
+   * @internal
+   */
   public mutations(): pb.StateMutation[] {
     const mutations: pb.StateMutation[] = [];
 
@@ -90,6 +142,9 @@ export class MapState<K, V> {
     return mutations;
   }
 
+  /**
+   * Clears all entries from the state and marks all existing keys as dirty.
+   */
   public clear(): void {
     // Mark all keys as dirty before clearing
     for (const keyStr of this.#state.keys()) {
@@ -100,10 +155,20 @@ export class MapState<K, V> {
     this.#state.clear();
   }
 
+  /**
+   * Gets the number of entries in the state.
+   *
+   * @returns The number of entries
+   */
   public get size(): number {
     return this.#state.size;
   }
 
+  /**
+   * Gets the name of this state map.
+   *
+   * @returns The state map name
+   */
   public get name(): string {
     return this.#name;
   }
@@ -120,12 +185,10 @@ export class MapState<K, V> {
     }
   }
 
-  // Helper method to convert string key back to binary for decodeKey
   #mapKeyToBytes(keyStr: string): Uint8Array {
     return Buffer.from(keyStr, 'base64');
   }
 
-  // Helper method to convert binary key to string for Map usage
   #bytesToMapKey(bytes: Uint8Array): string {
     return Buffer.from(bytes).toString('base64');
   }

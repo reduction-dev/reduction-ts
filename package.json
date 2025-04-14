@@ -15,27 +15,32 @@
     ".": {
       "import": "./dist/index.js",
       "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "typedoc": "./src/index.ts"
     },
     "./topology": {
       "import": "./dist/topology/index.js",
       "require": "./dist/topology/index.js",
-      "types": "./dist/topology/index.d.ts"
-    },
-    "./connectors/*": {
-      "import": "./dist/connectors/*/index.js",
-      "require": "./dist/connectors/*/index.js",
-      "types": "./dist/connectors/*/index.d.ts"
+      "types": "./dist/topology/index.d.ts",
+      "typedoc": "./src/topology/index.ts"
     },
     "./state": {
       "import": "./dist/state/index.js",
       "require": "./dist/state/index.js",
-      "types": "./dist/state/index.d.ts"
+      "types": "./dist/state/index.d.ts",
+      "typedoc": "./src/state/index.ts"
+    },
+    "./connectors/*": {
+      "import": "./dist/connectors/*/index.js",
+      "require": "./dist/connectors/*/index.js",
+      "types": "./dist/connectors/*/index.d.ts",
+      "typedoc": "./src/connectors/*/index.ts"
     },
     "./temporal": {
       "import": "./dist/temporal/index.js",
       "require": "./dist/temporal/index.js",
-      "types": "./dist/temporal/index.d.ts"
+      "types": "./dist/temporal/index.d.ts",
+      "typedoc": "./src/temporal/index.ts"
     }
   },
   "bin": {
@@ -58,7 +63,8 @@
     "@connectrpc/connect": "^2.0.1",
     "@connectrpc/connect-node": "^2.0.1",
     "commander": "^13.1.0",
-    "temporal-polyfill": "^0.2.5"
+    "temporal-polyfill": "^0.2.5",
+    "typedoc": "^0.28.2"
   },
   "devDependencies": {
     "@bufbuild/protoc-gen-es": "^2.2.3",

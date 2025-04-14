@@ -6,8 +6,18 @@ import { create, toJson, type JsonValue } from "@bufbuild/protobuf";
 import { int32VarProto, stringVarProto, type ConfigVar } from "./config-var";
 
 export interface JobContextParams {
+  /**
+   * The number of workers to use for the job.
+   */
   workerCount?: ConfigVar<number>;
+
+  /**
+   * The number of key groups to use as the upper bound of possible partitions.
+   * Prefer using the default value unless you have a specific reason to change
+   * it.
+   */
   keyGroupCount?: number;
+
   workingStorageLocation: ConfigVar<string>;
   savepointStorageLocation?: ConfigVar<string>;
 }
