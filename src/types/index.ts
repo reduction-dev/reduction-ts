@@ -54,4 +54,4 @@ export interface OperatorHandler {
   onTimerExpired(subject: Subject, timer: Temporal.Instant): void | Promise<void>;
 }
 
-export type KeyEventFunc = (event: Uint8Array) => KeyedEvent[];
+export type KeyEventFunc<T> = (event: T) => KeyedEvent[];

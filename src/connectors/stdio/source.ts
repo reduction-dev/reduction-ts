@@ -1,5 +1,5 @@
 import { create } from "@bufbuild/protobuf";
-import * as pb from "../../proto/jobconfigpb/jobconfig_pb";
+import * as pb from "../../proto/jobconfigpb";
 import type { Operator, Job } from "../../topology";
 import type { KeyEventFunc } from "../../types";
 
@@ -10,7 +10,7 @@ export interface StdioSourceParams {
   /**
    * Function that converts event data to KeyedEvents for processing.
    */
-  keyEvent: KeyEventFunc;
+  keyEvent: KeyEventFunc<Uint8Array>;
 
   /**
    * Optional framing strategy to use for separating records in the input stream.

@@ -2,8 +2,10 @@ import { create } from "@bufbuild/protobuf";
 import assert from "assert";
 import * as pb from "../proto/handlerpb/handler_pb";
 import { instantFromProto, instantToProto } from "../temporal";
-import type { KeyedEvent, KeyEventFunc, OperatorHandler } from "../types";
+import type { KeyedEvent, OperatorHandler } from "../types";
 import { LazySubjectBatch } from "./lazy-subject-batch";
+
+type KeyEventFunc = (data: Uint8Array) => KeyedEvent[];
 
 export class SynthesizedHandler {
   private keyEvent: KeyEventFunc;

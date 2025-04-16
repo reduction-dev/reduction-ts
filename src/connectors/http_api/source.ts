@@ -11,7 +11,7 @@ export interface HTTPAPISourceParams {
   /**
    * Function that converts event data to KeyedEvents for processing.
    */
-  keyEvent: KeyEventFunc;
+  keyEvent: KeyEventFunc<Uint8Array>; // TODO: Needs to use an HTTP API specific type
 
   /**
    * The address where the HTTP service for the source is listening.

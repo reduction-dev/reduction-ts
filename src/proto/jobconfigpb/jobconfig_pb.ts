@@ -2,17 +2,29 @@
 // @generated from file jobconfigpb/jobconfig.proto (package dev.reduction.jobconfig, syntax proto3)
 /* eslint-disable */
 
-import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
-import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
+import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
+import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import type { Int32Var, StringVar } from "./resolvable_pb";
 import { file_jobconfigpb_resolvable } from "./resolvable_pb";
+import type { StdioSink, StdioSource } from "./stdio_pb";
+import { file_jobconfigpb_stdio } from "./stdio_pb";
+import type { KinesisSource } from "./kinesis_pb";
+import { file_jobconfigpb_kinesis } from "./kinesis_pb";
+import type { HTTPAPISink, HTTPAPISource } from "./httpapi_pb";
+import { file_jobconfigpb_httpapi } from "./httpapi_pb";
+import type { EmbeddedSource } from "./embedded_pb";
+import { file_jobconfigpb_embedded } from "./embedded_pb";
+import type { MemorySink } from "./memory_pb";
+import { file_jobconfigpb_memory } from "./memory_pb";
+import type { KafkaSink, KafkaSource } from "./kafka_pb";
+import { file_jobconfigpb_kafka } from "./kafka_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file jobconfigpb/jobconfig.proto.
  */
 export const file_jobconfigpb_jobconfig: GenFile = /*@__PURE__*/
-  fileDesc("Chtqb2Jjb25maWdwYi9qb2Jjb25maWcucHJvdG8SF2Rldi5yZWR1Y3Rpb24uam9iY29uZmlnIpYBCglKb2JDb25maWcSKQoDam9iGAEgASgLMhwuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuSm9iEjAKB3NvdXJjZXMYAiADKAsyHy5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5Tb3VyY2USLAoFc2lua3MYAyADKAsyHS5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5TaW5rIuUBCgNKb2ISNwoMd29ya2VyX2NvdW50GAEgASgLMiEuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuSW50MzJWYXISFwoPa2V5X2dyb3VwX2NvdW50GAIgASgFEkQKGHdvcmtpbmdfc3RvcmFnZV9sb2NhdGlvbhgDIAEoCzIiLmRldi5yZWR1Y3Rpb24uam9iY29uZmlnLlN0cmluZ1ZhchJGChpzYXZlcG9pbnRfc3RvcmFnZV9sb2NhdGlvbhgEIAEoCzIiLmRldi5yZWR1Y3Rpb24uam9iY29uZmlnLlN0cmluZ1ZhciKJAgoGU291cmNlEgoKAmlkGAEgASgJEjUKBXN0ZGlvGAIgASgLMiQuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuU3RkaW9Tb3VyY2VIABI5CgdraW5lc2lzGAMgASgLMiYuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuS2luZXNpc1NvdXJjZUgAEjoKCGh0dHBfYXBpGAQgASgLMiYuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuSFRUUEFQSVNvdXJjZUgAEjsKCGVtYmVkZGVkGAUgASgLMicuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuRW1iZWRkZWRTb3VyY2VIAEIICgZjb25maWciwgEKBFNpbmsSCgoCaWQYASABKAkSMwoFc3RkaW8YAiABKAsyIi5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5TdGRpb1NpbmtIABI4CghodHRwX2FwaRgDIAEoCzIkLmRldi5yZWR1Y3Rpb24uam9iY29uZmlnLkhUVFBBUElTaW5rSAASNQoGbWVtb3J5GAQgASgLMiMuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuTWVtb3J5U2lua0gAQggKBmNvbmZpZyJACgtTdGRpb1NvdXJjZRIxCgdmcmFtaW5nGAEgASgLMiAuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuRnJhbWluZyLnAQoHRnJhbWluZxJOCg5sZW5ndGhfZW5jb2RlZBgBIAEoCzI0LmRldi5yZWR1Y3Rpb24uam9iY29uZmlnLkZyYW1pbmcuTGVuZ3RoRW5jb2RlZFNjaGVtZUgAEkUKCWRlbGltaXRlZBgCIAEoCzIwLmRldi5yZWR1Y3Rpb24uam9iY29uZmlnLkZyYW1pbmcuRGVsaW1pdGVkU2NoZW1lSAAaFQoTTGVuZ3RoRW5jb2RlZFNjaGVtZRokCg9EZWxpbWl0ZWRTY2hlbWUSEQoJZGVsaW1pdGVyGAEgASgMQggKBnNjaGVtZSJ9Cg1LaW5lc2lzU291cmNlEjYKCnN0cmVhbV9hcm4YASABKAsyIi5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5TdHJpbmdWYXISNAoIZW5kcG9pbnQYAiABKAsyIi5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5TdHJpbmdWYXIiUQoNSFRUUEFQSVNvdXJjZRIwCgRhZGRyGAEgASgLMiIuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuU3RyaW5nVmFyEg4KBnRvcGljcxgCIAMoCSLRAQoORW1iZWRkZWRTb3VyY2USEwoLc3BsaXRfY291bnQYASABKAUSEgoKYmF0Y2hfc2l6ZRgCIAEoBRJICglnZW5lcmF0b3IYAyABKA4yNS5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5FbWJlZGRlZFNvdXJjZS5HZW5lcmF0b3JUeXBlIkwKDUdlbmVyYXRvclR5cGUSHgoaR0VORVJBVE9SX1RZUEVfVU5TUEVDSUZJRUQQABIbChdHRU5FUkFUT1JfVFlQRV9TRVFVRU5DRRABIgsKCVN0ZGlvU2luayI/CgtIVFRQQVBJU2luaxIwCgRhZGRyGAEgASgLMiIuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuU3RyaW5nVmFyIgwKCk1lbW9yeVNpbmtCLloscmVkdWN0aW9uLmRldi9yZWR1Y3Rpb24tcHJvdG9jb2wvam9iY29uZmlncGJiBnByb3RvMw", [file_jobconfigpb_resolvable]);
+  fileDesc("Chtqb2Jjb25maWdwYi9qb2Jjb25maWcucHJvdG8SF2Rldi5yZWR1Y3Rpb24uam9iY29uZmlnIpYBCglKb2JDb25maWcSKQoDam9iGAEgASgLMhwuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuSm9iEjAKB3NvdXJjZXMYAiADKAsyHy5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5Tb3VyY2USLAoFc2lua3MYAyADKAsyHS5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5TaW5rIuUBCgNKb2ISNwoMd29ya2VyX2NvdW50GAEgASgLMiEuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuSW50MzJWYXISFwoPa2V5X2dyb3VwX2NvdW50GAIgASgFEkQKGHdvcmtpbmdfc3RvcmFnZV9sb2NhdGlvbhgDIAEoCzIiLmRldi5yZWR1Y3Rpb24uam9iY29uZmlnLlN0cmluZ1ZhchJGChpzYXZlcG9pbnRfc3RvcmFnZV9sb2NhdGlvbhgEIAEoCzIiLmRldi5yZWR1Y3Rpb24uam9iY29uZmlnLlN0cmluZ1ZhciLAAgoGU291cmNlEgoKAmlkGAEgASgJEjUKBXN0ZGlvGAIgASgLMiQuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuU3RkaW9Tb3VyY2VIABI5CgdraW5lc2lzGAMgASgLMiYuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuS2luZXNpc1NvdXJjZUgAEjoKCGh0dHBfYXBpGAQgASgLMiYuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuSFRUUEFQSVNvdXJjZUgAEjsKCGVtYmVkZGVkGAUgASgLMicuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuRW1iZWRkZWRTb3VyY2VIABI1CgVrYWZrYRgGIAEoCzIkLmRldi5yZWR1Y3Rpb24uam9iY29uZmlnLkthZmthU291cmNlSABCCAoGY29uZmlnIvcBCgRTaW5rEgoKAmlkGAEgASgJEjMKBXN0ZGlvGAIgASgLMiIuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuU3RkaW9TaW5rSAASOAoIaHR0cF9hcGkYAyABKAsyJC5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5IVFRQQVBJU2lua0gAEjUKBm1lbW9yeRgEIAEoCzIjLmRldi5yZWR1Y3Rpb24uam9iY29uZmlnLk1lbW9yeVNpbmtIABIzCgVrYWZrYRgFIAEoCzIiLmRldi5yZWR1Y3Rpb24uam9iY29uZmlnLkthZmthU2lua0gAQggKBmNvbmZpZ0IuWixyZWR1Y3Rpb24uZGV2L3JlZHVjdGlvbi1wcm90b2NvbC9qb2Jjb25maWdwYmIGcHJvdG8z", [file_jobconfigpb_resolvable, file_jobconfigpb_stdio, file_jobconfigpb_kinesis, file_jobconfigpb_httpapi, file_jobconfigpb_embedded, file_jobconfigpb_memory, file_jobconfigpb_kafka]);
 
 /**
  * JobConfig is the configuration needed to run a job
@@ -115,6 +127,12 @@ export type Source = Message<"dev.reduction.jobconfig.Source"> & {
      */
     value: EmbeddedSource;
     case: "embedded";
+  } | {
+    /**
+     * @generated from field: dev.reduction.jobconfig.KafkaSource kafka = 6;
+     */
+    value: KafkaSource;
+    case: "kafka";
   } | { case: undefined; value?: undefined };
 };
 
@@ -157,6 +175,12 @@ export type Sink = Message<"dev.reduction.jobconfig.Sink"> & {
      */
     value: MemorySink;
     case: "memory";
+  } | {
+    /**
+     * @generated from field: dev.reduction.jobconfig.KafkaSink kafka = 5;
+     */
+    value: KafkaSink;
+    case: "kafka";
   } | { case: undefined; value?: undefined };
 };
 
@@ -166,221 +190,4 @@ export type Sink = Message<"dev.reduction.jobconfig.Sink"> & {
  */
 export const SinkSchema: GenMessage<Sink> = /*@__PURE__*/
   messageDesc(file_jobconfigpb_jobconfig, 3);
-
-/**
- * Source Configs
- *
- * @generated from message dev.reduction.jobconfig.StdioSource
- */
-export type StdioSource = Message<"dev.reduction.jobconfig.StdioSource"> & {
-  /**
-   * @generated from field: dev.reduction.jobconfig.Framing framing = 1;
-   */
-  framing?: Framing;
-};
-
-/**
- * Describes the message dev.reduction.jobconfig.StdioSource.
- * Use `create(StdioSourceSchema)` to create a new message.
- */
-export const StdioSourceSchema: GenMessage<StdioSource> = /*@__PURE__*/
-  messageDesc(file_jobconfigpb_jobconfig, 4);
-
-/**
- * Framing specifies how to separate messages for the stdio source
- *
- * @generated from message dev.reduction.jobconfig.Framing
- */
-export type Framing = Message<"dev.reduction.jobconfig.Framing"> & {
-  /**
-   * @generated from oneof dev.reduction.jobconfig.Framing.scheme
-   */
-  scheme: {
-    /**
-     * @generated from field: dev.reduction.jobconfig.Framing.LengthEncodedScheme length_encoded = 1;
-     */
-    value: Framing_LengthEncodedScheme;
-    case: "lengthEncoded";
-  } | {
-    /**
-     * @generated from field: dev.reduction.jobconfig.Framing.DelimitedScheme delimited = 2;
-     */
-    value: Framing_DelimitedScheme;
-    case: "delimited";
-  } | { case: undefined; value?: undefined };
-};
-
-/**
- * Describes the message dev.reduction.jobconfig.Framing.
- * Use `create(FramingSchema)` to create a new message.
- */
-export const FramingSchema: GenMessage<Framing> = /*@__PURE__*/
-  messageDesc(file_jobconfigpb_jobconfig, 5);
-
-/**
- * @generated from message dev.reduction.jobconfig.Framing.LengthEncodedScheme
- */
-export type Framing_LengthEncodedScheme = Message<"dev.reduction.jobconfig.Framing.LengthEncodedScheme"> & {
-};
-
-/**
- * Describes the message dev.reduction.jobconfig.Framing.LengthEncodedScheme.
- * Use `create(Framing_LengthEncodedSchemeSchema)` to create a new message.
- */
-export const Framing_LengthEncodedSchemeSchema: GenMessage<Framing_LengthEncodedScheme> = /*@__PURE__*/
-  messageDesc(file_jobconfigpb_jobconfig, 5, 0);
-
-/**
- * @generated from message dev.reduction.jobconfig.Framing.DelimitedScheme
- */
-export type Framing_DelimitedScheme = Message<"dev.reduction.jobconfig.Framing.DelimitedScheme"> & {
-  /**
-   * @generated from field: bytes delimiter = 1;
-   */
-  delimiter: Uint8Array;
-};
-
-/**
- * Describes the message dev.reduction.jobconfig.Framing.DelimitedScheme.
- * Use `create(Framing_DelimitedSchemeSchema)` to create a new message.
- */
-export const Framing_DelimitedSchemeSchema: GenMessage<Framing_DelimitedScheme> = /*@__PURE__*/
-  messageDesc(file_jobconfigpb_jobconfig, 5, 1);
-
-/**
- * @generated from message dev.reduction.jobconfig.KinesisSource
- */
-export type KinesisSource = Message<"dev.reduction.jobconfig.KinesisSource"> & {
-  /**
-   * @generated from field: dev.reduction.jobconfig.StringVar stream_arn = 1;
-   */
-  streamArn?: StringVar;
-
-  /**
-   * @generated from field: dev.reduction.jobconfig.StringVar endpoint = 2;
-   */
-  endpoint?: StringVar;
-};
-
-/**
- * Describes the message dev.reduction.jobconfig.KinesisSource.
- * Use `create(KinesisSourceSchema)` to create a new message.
- */
-export const KinesisSourceSchema: GenMessage<KinesisSource> = /*@__PURE__*/
-  messageDesc(file_jobconfigpb_jobconfig, 6);
-
-/**
- * @generated from message dev.reduction.jobconfig.HTTPAPISource
- */
-export type HTTPAPISource = Message<"dev.reduction.jobconfig.HTTPAPISource"> & {
-  /**
-   * @generated from field: dev.reduction.jobconfig.StringVar addr = 1;
-   */
-  addr?: StringVar;
-
-  /**
-   * @generated from field: repeated string topics = 2;
-   */
-  topics: string[];
-};
-
-/**
- * Describes the message dev.reduction.jobconfig.HTTPAPISource.
- * Use `create(HTTPAPISourceSchema)` to create a new message.
- */
-export const HTTPAPISourceSchema: GenMessage<HTTPAPISource> = /*@__PURE__*/
-  messageDesc(file_jobconfigpb_jobconfig, 7);
-
-/**
- * @generated from message dev.reduction.jobconfig.EmbeddedSource
- */
-export type EmbeddedSource = Message<"dev.reduction.jobconfig.EmbeddedSource"> & {
-  /**
-   * @generated from field: int32 split_count = 1;
-   */
-  splitCount: number;
-
-  /**
-   * @generated from field: int32 batch_size = 2;
-   */
-  batchSize: number;
-
-  /**
-   * @generated from field: dev.reduction.jobconfig.EmbeddedSource.GeneratorType generator = 3;
-   */
-  generator: EmbeddedSource_GeneratorType;
-};
-
-/**
- * Describes the message dev.reduction.jobconfig.EmbeddedSource.
- * Use `create(EmbeddedSourceSchema)` to create a new message.
- */
-export const EmbeddedSourceSchema: GenMessage<EmbeddedSource> = /*@__PURE__*/
-  messageDesc(file_jobconfigpb_jobconfig, 8);
-
-/**
- * @generated from enum dev.reduction.jobconfig.EmbeddedSource.GeneratorType
- */
-export enum EmbeddedSource_GeneratorType {
-  /**
-   * @generated from enum value: GENERATOR_TYPE_UNSPECIFIED = 0;
-   */
-  UNSPECIFIED = 0,
-
-  /**
-   * @generated from enum value: GENERATOR_TYPE_SEQUENCE = 1;
-   */
-  SEQUENCE = 1,
-}
-
-/**
- * Describes the enum dev.reduction.jobconfig.EmbeddedSource.GeneratorType.
- */
-export const EmbeddedSource_GeneratorTypeSchema: GenEnum<EmbeddedSource_GeneratorType> = /*@__PURE__*/
-  enumDesc(file_jobconfigpb_jobconfig, 8, 0);
-
-/**
- * Sink Configs
- *
- * @generated from message dev.reduction.jobconfig.StdioSink
- */
-export type StdioSink = Message<"dev.reduction.jobconfig.StdioSink"> & {
-};
-
-/**
- * Describes the message dev.reduction.jobconfig.StdioSink.
- * Use `create(StdioSinkSchema)` to create a new message.
- */
-export const StdioSinkSchema: GenMessage<StdioSink> = /*@__PURE__*/
-  messageDesc(file_jobconfigpb_jobconfig, 9);
-
-/**
- * @generated from message dev.reduction.jobconfig.HTTPAPISink
- */
-export type HTTPAPISink = Message<"dev.reduction.jobconfig.HTTPAPISink"> & {
-  /**
-   * @generated from field: dev.reduction.jobconfig.StringVar addr = 1;
-   */
-  addr?: StringVar;
-};
-
-/**
- * Describes the message dev.reduction.jobconfig.HTTPAPISink.
- * Use `create(HTTPAPISinkSchema)` to create a new message.
- */
-export const HTTPAPISinkSchema: GenMessage<HTTPAPISink> = /*@__PURE__*/
-  messageDesc(file_jobconfigpb_jobconfig, 10);
-
-/**
- * @generated from message dev.reduction.jobconfig.MemorySink
- */
-export type MemorySink = Message<"dev.reduction.jobconfig.MemorySink"> & {
-};
-
-/**
- * Describes the message dev.reduction.jobconfig.MemorySink.
- * Use `create(MemorySinkSchema)` to create a new message.
- */
-export const MemorySinkSchema: GenMessage<MemorySink> = /*@__PURE__*/
-  messageDesc(file_jobconfigpb_jobconfig, 11);
 

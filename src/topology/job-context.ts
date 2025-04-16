@@ -1,5 +1,5 @@
 import { SynthesizedHandler } from "../handler/synthesized-handler";
-import type { KeyEventFunc, OperatorHandler } from "../types";
+import type { KeyedEvent, OperatorHandler } from "../types";
 import * as config_pb from '../proto/jobconfigpb/jobconfig_pb';
 import type { Operator } from "./operator";
 import { create, toJson, type JsonValue } from "@bufbuild/protobuf";
@@ -23,7 +23,7 @@ export interface JobContextParams {
 }
 
 interface SourceSynthesis {
-  keyEvent: KeyEventFunc;
+  keyEvent: (data: Uint8Array) => KeyedEvent[];
   operators: Operator[];
   config: config_pb.Source;
 }

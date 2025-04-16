@@ -1,8 +1,10 @@
 import { create } from '@bufbuild/protobuf';
 import * as pb from '../../proto/jobconfigpb/jobconfig_pb';
+import * as kinesispb from '../../proto/kinesispb/kinesis_pb';
 import type { Operator, Job, ConfigVar } from '../../topology';
-import type { KeyEventFunc } from '../../types';
+import type { KeyedEvent, KeyEventFunc } from '../../types';
 import { stringVarProto } from '../../topology/config-var';
+import { KinesisRecord } from './kinesis_record';
 
 /**
  * Parameters for creating a Kinesis source.
@@ -11,7 +13,7 @@ export interface KinesisSourceParams {
   /**
    * Function that converts event data to KeyedEvents for processing.
    */
-  keyEvent: KeyEventFunc;
+  keyEvent: KeyEventFunc<KinesisRecord>;
 
   /**
    * The ARN of the Kinesis stream to read from.
@@ -42,7 +44,10 @@ export class Source {
     this.operators = [];
 
     job.context.registerSource(() => ({
-      keyEvent: params.keyEvent,
+      keyEvent: function (data: Uint8Array): KeyedEvent[] {
+        const record = KinesisRecord.fromBinary(data);
+        return params.keyEvent(record);
+      },
       operators: this.operators,
       config: create(pb.SourceSchema, {
         id,
