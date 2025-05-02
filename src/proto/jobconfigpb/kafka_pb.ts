@@ -6,13 +6,15 @@ import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import type { StringVar } from "./resolvable_pb";
 import { file_jobconfigpb_resolvable } from "./resolvable_pb";
+import type { Duration } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_duration } from "@bufbuild/protobuf/wkt";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file jobconfigpb/kafka.proto.
  */
 export const file_jobconfigpb_kafka: GenFile = /*@__PURE__*/
-  fileDesc("Chdqb2Jjb25maWdwYi9rYWZrYS5wcm90bxIXZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcisgEKC0thZmthU291cmNlEjoKDmNvbnN1bWVyX2dyb3VwGAEgASgLMiIuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuU3RyaW5nVmFyEjMKB2Jyb2tlcnMYAiABKAsyIi5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5TdHJpbmdWYXISMgoGdG9waWNzGAMgASgLMiIuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuU3RyaW5nVmFyIkAKCUthZmthU2luaxIzCgdicm9rZXJzGAEgASgLMiIuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuU3RyaW5nVmFyQi5aLHJlZHVjdGlvbi5kZXYvcmVkdWN0aW9uLXByb3RvY29sL2pvYmNvbmZpZ3BiYgZwcm90bzM", [file_jobconfigpb_resolvable]);
+  fileDesc("Chdqb2Jjb25maWdwYi9rYWZrYS5wcm90bxIXZGV2LnJlZHVjdGlvbi5qb2Jjb25maWci8wEKC0thZmthU291cmNlEjoKDmNvbnN1bWVyX2dyb3VwGAEgASgLMiIuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuU3RyaW5nVmFyEjMKB2Jyb2tlcnMYAiABKAsyIi5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5TdHJpbmdWYXISMgoGdG9waWNzGAMgASgLMiIuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuU3RyaW5nVmFyEj8KHHBhcnRpdGlvbl9kaXNjb3ZlcnlfaW50ZXJ2YWwYBCABKAsyGS5nb29nbGUucHJvdG9idWYuRHVyYXRpb24iQAoJS2Fma2FTaW5rEjMKB2Jyb2tlcnMYASABKAsyIi5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5TdHJpbmdWYXJCLloscmVkdWN0aW9uLmRldi9yZWR1Y3Rpb24tcHJvdG9jb2wvam9iY29uZmlncGJiBnByb3RvMw", [file_jobconfigpb_resolvable, file_google_protobuf_duration]);
 
 /**
  * @generated from message dev.reduction.jobconfig.KafkaSource
@@ -38,6 +40,13 @@ export type KafkaSource = Message<"dev.reduction.jobconfig.KafkaSource"> & {
    * @generated from field: dev.reduction.jobconfig.StringVar topics = 3;
    */
   topics?: StringVar;
+
+  /**
+   * How often to check for new topic partitions
+   *
+   * @generated from field: google.protobuf.Duration partition_discovery_interval = 4;
+   */
+  partitionDiscoveryInterval?: Duration;
 };
 
 /**

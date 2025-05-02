@@ -6,13 +6,15 @@ import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import type { StringVar } from "./resolvable_pb";
 import { file_jobconfigpb_resolvable } from "./resolvable_pb";
+import type { Duration } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_duration } from "@bufbuild/protobuf/wkt";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file jobconfigpb/kinesis.proto.
  */
 export const file_jobconfigpb_kinesis: GenFile = /*@__PURE__*/
-  fileDesc("Chlqb2Jjb25maWdwYi9raW5lc2lzLnByb3RvEhdkZXYucmVkdWN0aW9uLmpvYmNvbmZpZyJ9Cg1LaW5lc2lzU291cmNlEjYKCnN0cmVhbV9hcm4YASABKAsyIi5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5TdHJpbmdWYXISNAoIZW5kcG9pbnQYAiABKAsyIi5kZXYucmVkdWN0aW9uLmpvYmNvbmZpZy5TdHJpbmdWYXJCLloscmVkdWN0aW9uLmRldi9yZWR1Y3Rpb24tcHJvdG9jb2wvam9iY29uZmlncGJiBnByb3RvMw", [file_jobconfigpb_resolvable]);
+  fileDesc("Chlqb2Jjb25maWdwYi9raW5lc2lzLnByb3RvEhdkZXYucmVkdWN0aW9uLmpvYmNvbmZpZyK6AQoNS2luZXNpc1NvdXJjZRI2CgpzdHJlYW1fYXJuGAEgASgLMiIuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuU3RyaW5nVmFyEjQKCGVuZHBvaW50GAIgASgLMiIuZGV2LnJlZHVjdGlvbi5qb2Jjb25maWcuU3RyaW5nVmFyEjsKGHNoYXJkX2Rpc2NvdmVyeV9pbnRlcnZhbBgDIAEoCzIZLmdvb2dsZS5wcm90b2J1Zi5EdXJhdGlvbkIuWixyZWR1Y3Rpb24uZGV2L3JlZHVjdGlvbi1wcm90b2NvbC9qb2Jjb25maWdwYmIGcHJvdG8z", [file_jobconfigpb_resolvable, file_google_protobuf_duration]);
 
 /**
  * @generated from message dev.reduction.jobconfig.KinesisSource
@@ -27,6 +29,11 @@ export type KinesisSource = Message<"dev.reduction.jobconfig.KinesisSource"> & {
    * @generated from field: dev.reduction.jobconfig.StringVar endpoint = 2;
    */
   endpoint?: StringVar;
+
+  /**
+   * @generated from field: google.protobuf.Duration shard_discovery_interval = 3;
+   */
+  shardDiscoveryInterval?: Duration;
 };
 
 /**
